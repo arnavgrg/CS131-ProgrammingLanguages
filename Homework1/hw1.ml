@@ -45,10 +45,25 @@ let rec computed_fixed_point eq f x =
   if eq (f x) x then x else computed_fixed_point eq f (f x)
 ;;
 
+let find_reachable_nonterminals reachable_non_terminals rules = 
+  
+;;
 
-(**)
-let rec filter_reachable g = 
+(*Helper method for filter_reachable to help parse grammar rules*)
+(*Basic logic: Call find_reachable_nonterminals to get a list of all the reachable non-terminals.
+We pass in start_expression in a list because we want to include it as the first non-terminal that 
+can be reached and so has valid grammar rules. We then want to filter out all the rules that can be 
+reached and return it to filter_reachable*)
+(*fst *)
+let filter_reachable_rules start_expression rules =
+  let reachable_nonterminals = (find_reachable_nonterminals [start_expression] rules) in 
+    List.filter (fun x -> List.mem (fst x) reachable_nonterminals) rules
+;;
+
+(*G: Start Expression, List of tuples of the form non-terminal, rule *)
+(*We want to return Start Expression, List of valid grammar rules *)
+let filter_reachable g = 
   match g with 
-    | expression, rules -> 
-    | _ -> g 
+    | start_expression, rules -> start_expression, (filter_reachable_rules start_expression rules)
+    | _ -> g
 ;;
