@@ -1,0 +1,17 @@
+Initially, creating set based functions was challenging because
+it took time to understand the limitations of pattern matching and
+filters on Lists. However, after implementing the subset and set 
+intersection functions, the other functions became trivially easy because 
+they were all related to each other. The actual logic behind each of 
+the function's implementations is mentioned in hw1.ml as comments above
+each of the functions.
+
+To determine grammar rules, the challenge was different since it required 
+several layers of parsing through the list of tuples (grammar rules). 
+The most important thing was to understand how grammar works rather than 
+actually implementing logic flow. For the most part, however, the logic 
+was based on the idea of constantly finding new non-terminals
+that can be reached from the current list of reachable non-terminals. 
+After creating this list, we just filter the old list of rules to keep the 
+the ones with reachable non-terminals and return this list. This was the 
+simplest yet most intuitive logic flow I could come up with for this problem.
