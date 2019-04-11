@@ -23,7 +23,7 @@ let equal_sets a b =
 (*For each element a, if it is in b, then add it to the list. The list is created by the filter*)
 let set_intersection a b = 
   List.filter (fun x -> (List.mem x b)) a
-;; 
+;;
 
 (*For each element in a, if it is not in b, then add it to the list and return this list
 Filter creates a list match this condition.*)
@@ -45,8 +45,44 @@ let rec computed_fixed_point eq f x =
   if eq (f x) x then x else computed_fixed_point eq f (f x)
 ;;
 
-let find_reachable_nonterminals reachable_non_terminals rules = 
-  
+(* Helper method for non_terminals *)
+(* Recursively retrieves all nonterminals from the rules for a given non-terminal *)
+let rec filter_all_nonterminals rule_list =
+  match rule_list with
+    | [] -> []
+    (*if it is a nonterminal, add it to the list and move to the rest of the list*)
+    | N head :: rules_left_in_list -> head::(filter_all_nonterminals rules_left_in_list)
+    | _ :: rules_left_in_list -> filter_all_nonterminals rules_left_in_list
+;;
+
+(* Helper method for filter_reachable *)
+let rec create_nonterminal_set non_terminals rules = 
+  match rules with
+	| [] -> non_terminals
+  | rule_tuple :: remaining_tuples_list -> 
+  (* Check if the non-terminal in the tuple is one of the nonterminals in the list being passed in *)
+  if (List.mem (fst rule_tuple) non_terminals)
+   (* If yes, call this function recursively, but on the union of the old non terminal 
+   list with all the new non terminals from this rule *)
+		then create_nonterminal_set (set_union non_terminals (filter_all_nonterminals (snd rule_tuple))) remaining_tuples_list
+  (* Otherwise, call it recursively using the current non terminals list and the remaining
+     list of tuples *)
+  else create_nonterminal_set non_terminals remaining_tuples_list
+;;
+
+(*Helper method for filter_reachable*)
+(*Essentially checks for the terminating breadth first search condition, that is,
+when two recursive calls have the same return value, then we're done traversing 
+and have found all of the valid non terminals*)
+let rec find_reachable_nonterminals reachable_non_terminals rules = 
+  (* First call returns the list of reachable nonterminals so far *)
+  let recursive_call_1 = create_nonterminal_set reachable_non_terminals rules in
+  (* Second call uses the list returned for further processing *)
+  let recursive_call_2 = create_nonterminal_set recursive_call_1 rules in
+    (* Check if *)
+    if equal_sets recursive_call_1 recursive_call_2 
+      then recursive_call_2
+    else find_reachable_nonterminals recursive_call_2 rules
 ;;
 
 (*Helper method for filter_reachable to help parse grammar rules*)
@@ -62,8 +98,4 @@ let filter_reachable_rules start_expression rules =
 
 (*G: Start Expression, List of tuples of the form non-terminal, rule *)
 (*We want to return Start Expression, List of valid grammar rules *)
-let filter_reachable g = 
-  match g with 
-    | start_expression, rules -> start_expression, (filter_reachable_rules start_expression rules)
-    | _ -> g
-;;
+let filter_reachable g = ( (fst g) , ( filter_reachable_rules (fst g) (snd g) ) );;
