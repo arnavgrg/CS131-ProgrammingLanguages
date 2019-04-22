@@ -45,15 +45,15 @@ let rec parse_tree_leaves tree =
     | Leaf leaf_terminal -> [leaf_terminal]
   (*Use 'and' as a substitute for 'let rec' incase we're defining mutually recursive functions*)
   and process_list = function 
-    (* Three possible cases (in order of the way they're defined):
-      1. While further processing the list, we've eventually hit a final leaf node so we just put 
-        it in its own list and continue to processs the remainder of the list
-      2. While further processing the list, we found another non-terminal, so we want to mutually
-        recurse with the parse_tree_leaves so we can process the non-terminal, but then also continue
-        with the original terminal's list.
-      3. Empty list, in which case we're done processing the node, so we just return an empty list*)
+    (* Three possible cases (in order of the way they're defined) *)
+    (*1. While further processing the list, we've eventually hit a final leaf node so we just put 
+      it in its own list and continue to processs the remainder of the list*)
     | (Leaf leaf_terminal)::remainder -> List.concat [[leaf_terminal]; process_list remainder]
+    (*2. While further processing the list, we found another non-terminal, so we want to mutually
+        recurse with the parse_tree_leaves so we can process the non-terminal, but then also continue
+        with the original terminal's list.*)
     | new_nonterminal::remainder -> List.concat [(parse_tree_leaves new_nonterminal); (process_list remainder)]
+    (*3. Empty list, in which case we're done processing the node, so we just return an empty list*)
     | [] -> []
 ;;
 
