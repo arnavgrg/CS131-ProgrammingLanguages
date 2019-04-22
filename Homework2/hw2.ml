@@ -17,19 +17,20 @@ type ('nonterminal, 'terminal) parse_tree =
 ;;
 
 (*Helper method to get all the rules for a non terminal and place them into a list*)
+(*This function essentially generates an alternative list for a given non-terminal in a grammar*)
 let rec get_rules nonterminal rules =
 	match rules with
 	| [] -> []
 	| (nonterm, rule)::remaining_rules -> 
     if nonterm == nonterminal 
       then rule::(get_rules nonterminal remaining_rules)
-		else get_rules nonterminal remaining_rules
+	else get_rules nonterminal remaining_rules
 ;;
 
 (*Convert grammar from HW1-style to HW2-style*)
 let convert_grammar gram1 = 
   (*fst gram1 -> starting symbol*)
-  (*function that get a list of all rules for a given non-terminal*)
+  (*function that generates a list of all rules for a given non-terminal in order*)
   let start_symbol = (fst gram1) in 
   let rules_ = (snd gram1) in
   let production_function = (function nonterminal -> get_rules nonterminal rules_) in
@@ -57,9 +58,26 @@ let rec parse_tree_leaves tree =
     | [] -> []
 ;;
 
+(*Helper method for make_matcher that actually does all the work. *)
+let rec actual_make_matcher rule_func rules accept frag = 
+  match rules with
+  (*Base Case*)
+  | [] -> None 
+  (*Pattern matching to split b*)
+  | first_rule::remaining_rules ->
+;;
+
+(*Function that returns a matcher for the grammar 'gram' passed into the function*)
 let make_matcher gram =
-  match gram with 
-  | (start_nonterminal, rule_list) -> 
+  match gram with
+  (*fun defines a function with any number of arguments that can each be given by one pattern. 
+  On the other hand, function defines a function with one argument that can be given by any number of patterns.*)
+  (*Pass the rule function, the rules for the starting non-terminal, the acceptor function and the fragments to 
+  a helper method that will do all the work.*)
+  | (start_nonterminal, altlist_func) 
+  	-> (fun acceptor_accept fragment_frag 
+		-> actual_make_matcher altlist_func (altlist_func start_nonterminal) acceptor_accept fragment_frag)
+  (*If you can't find a match, then the grammar is probably incorrectly formatted, so just return the grammar passed in*)
   | _ -> gram
 ;;
 
