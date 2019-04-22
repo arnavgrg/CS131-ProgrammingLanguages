@@ -39,10 +39,10 @@ let convert_grammar gram1 =
 (*Function to generate a parse*)
 let rec parse_tree_leaves tree = 
   match tree with 
-    (*Nodes have non_terminal and the remainder of the list that still needs to be processed*)
-    | Node (non_terminal, rem) -> process_list rem
     (*If if it is a leaf node, then just place it in a list and end recursion here*)
     | Leaf leaf_terminal -> [leaf_terminal]
+    (*Nodes have non_terminal and the remainder of the list that still needs to be processed*)
+    | Node (non_terminal, rem) -> process_list rem
   (*Use 'and' as a substitute for 'let rec' incase we're defining mutually recursive functions*)
   and process_list = function 
     (* Three possible cases (in order of the way they're defined) *)
@@ -57,10 +57,12 @@ let rec parse_tree_leaves tree =
     | [] -> []
 ;;
 
-(*let make_matcher gram =
-
-;;*)
+let make_matcher gram =
+  match gram with 
+  | (start_nonterminal, rule_list) -> 
+  | _ -> gram
+;;
 
 (*let make_parser gram = 
-
+  
 ;;*)
