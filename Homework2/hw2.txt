@@ -1,0 +1,25 @@
+Although it is fairly obvious that you can write make_parser in terms of 
+make_matcher because of the overlap in functionality, I decided to write 
+my make_matcher as an independent function. One of the biggest reasons for 
+this is that I couldn't figure out how to actually implement my make_parser 
+function, because it kept spinning into infinite loops or returned type 
+errors. Therefore, I don't have a make_parser function in my hw2.ml file. 
+
+The overall idea of my make_matcher is to parse through the non-terminals 
+and their rules in order, essentially building something that resembles a 
+parse-tree, back tracking at each point if the rightmost leaf node doesn't 
+pass the acceptor (returns none), and trying every possible combination in
+the worst case scenario. 
+
+The code by itself consists of 3 mutually recursive functions/helper functions 
+that go 1) through all the rules in the list from left to right for each of 
+the non-terminals 2) go through each of the symbols (N/T) contained within a 
+given rule for a non-terminal and 3) allow for backtracking by splitting the 
+work across the helper functions and calling them recursively on the head and 
+tail of the rule lists for each non-terminals, processing symbols before the 
+next set of rules for non-terminals before moving on to the next rule, and also 
+by creating the "parse-tree" in the correct order. The ordering in which these
+functions are called helps create the "backtracking" idea/functionality.
+
+I think this may go into an infinite loop depending on the order of 
+non-terminals and rules it processes. 
