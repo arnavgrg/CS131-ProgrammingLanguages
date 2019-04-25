@@ -21,7 +21,10 @@ type ('nonterminal, 'terminal) parse_tree =
 let rec get_rules nonterminal rules =
 	match rules with
 	| [] -> []
-	| (nonterm, rule)::remaining_rules -> 
+  | (nonterm, rule)::remaining_rules -> 
+  (*If the nonterminal in the tuple matches the one we're trying to get the rules
+  for, then append the rule to the list of rules being created recursively for
+  this non-terminal while preserving order*)
     if nonterm == nonterminal 
       then rule::(get_rules nonterminal remaining_rules)
 	else get_rules nonterminal remaining_rules
@@ -63,8 +66,28 @@ let rec actual_make_matcher rule_func rules accept frag =
   match rules with
   (*Base Case*)
   | [] -> None 
-  (*Pattern matching to split b*)
-  | first_rule::remaining_rules ->
+  (*Pattern matching to split list of rules for the non-terminal*)
+  | head_rule::remaining_rules -> 
+    (**)
+    let match_head_rule = (symbol_matcher rule_func head_rule)
+    and match_tail_rule = (actual_make_matcher rule_func remaining_rules) in
+    (*Either returns some or none*)
+    let other_match = match_head_rule accept frag in 
+      match other_match with 
+      | None -> match_tail_rule accept frag
+      | _ -> other_match
+    (*Matches the symbols in a rule for a non-terminal*)
+    and symbol_matcher rule_func rules accept frag =
+      match rules with 
+      | (T x)::remainder -> 
+          if (List.length frag = 0) then None else 
+            (if (List.hd(frag) = x) 
+                then (symbol_matcher rule_func remainder accept (List.tl(frag))) else None)
+      (* *)
+      | (N y)::remainder -> 
+          actual_make_matcher rule_func (rule_func y) (symbol_matcher rule_func remainder accept) frag
+      (*If the list is empty, just pass frag to the acceptor function*)
+      | [] -> accept frag
 ;;
 
 (*Function that returns a matcher for the grammar 'gram' passed into the function*)
@@ -74,13 +97,7 @@ let make_matcher gram =
   On the other hand, function defines a function with one argument that can be given by any number of patterns.*)
   (*Pass the rule function, the rules for the starting non-terminal, the acceptor function and the fragments to 
   a helper method that will do all the work.*)
-  | (start_nonterminal, altlist_func) 
-  	-> (fun acceptor_accept fragment_frag 
-		-> actual_make_matcher altlist_func (altlist_func start_nonterminal) acceptor_accept fragment_frag)
-  (*If you can't find a match, then the grammar is probably incorrectly formatted, so just return the grammar passed in*)
-  | _ -> gram
+  | (start_nonterminal, altlist_func) -> 
+      (fun acceptor_accept fragment_frag -> 
+        actual_make_matcher altlist_func (altlist_func start_nonterminal) acceptor_accept fragment_frag)
 ;;
-
-(*let make_parser gram = 
-  
-;;*)
