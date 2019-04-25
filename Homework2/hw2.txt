@@ -8,9 +8,9 @@ my hw2.ml file.
 
 The overall idea of my make_matcher is to parse through the non-terminals 
 and their rules in order, essentially building something that resembles a 
-parse-tree, back tracking at each point if the rightmost leaf node doesn't 
-pass the acceptor (returns none), and trying every possible combination in
-the worst case scenario. 
+parse-tree. The algorithm back tracks at each point if the rightmost leaf 
+node doesn't pass the acceptor (returns none), and tries every possible 
+combination in the worst case scenario. 
 
 The code by itself consists of 3 mutually recursive functions/helper 
 functions that go 1) through all the rules in the list from left to 
@@ -21,7 +21,47 @@ calling them recursively on the head and tail of the rule lists for each
 non-terminals, processing symbols before the next set of rules for 
 non-terminals before moving on to the next rule, and also by creating the 
 "parse-tree" in the correct order. The ordering in which these functions 
-are called helps create the "backtracking" idea / functionality.
+are called helps create the "backtracking" idea / functionality. 
+The backtracking idea is especially implemented in the symbol_matcher
+function. A more detailed line by line explanation is provide in hw2.ml
+within the make_matcher and actual_make_matcher functions. It is easier
+to understand the idea behind this algorithm when you read the code and 
+the comments that support each line within the algorithm.
 
+Weaknesses:
 I think this may go into an infinite loop depending on the order of 
-non-terminals and rules it processes.
+non-terminals and rules it processes. I've been trying to come up with a
+test case to see if this is true, but based on the logic flow, this feels
+like it might happen. An example might be when non-term1 has non-term2
+in its rule, and non-term2 has non-term1 in its rule resulting in a 
+cyclic relationship and therefore an infinite loop. Apart from this, given
+the amount of work that symbol_matcher does within actual_make_matcher, 
+it's possible that the algorithm goes deep into the recursion, causing 
+a build up of function call stacks that will eventually lead to a stack
+overflow. This can happen in the grammar passed in is complex, containing
+a large list of non-terminals, each of which has a fairly extensive list 
+of valid rules. Since the algorithm would try every permutation in the 
+worst case scenario, it could cause a stack overflow. This is seen with 
+test 4 in the sample test cases provided, where the algorithm takes a 
+couple of seconds to produce a boolean response, indicating the deep 
+recursion it goes into. Lastly, another problem that may arise is that 
+there may be edge cases which never meet my base conditions for recursion, 
+which may also cause it to spin into an infinite loop. 
+
+I did see an example of a stack overflow due to infinite recursion while
+writing a sample test case in hw2test.ml. Here's the output:
+
+type awksub_nonterminals =
+    Sunday
+  | Monday
+  | Tuesday
+  | Wednesday
+  | Thursday
+  | Friday
+  | Saturday
+val foodFragment : string list = ["Thin"; "Fried"; "Sushi"; "Meatless"]
+val awkish_food :
+  awksub_nonterminals *
+  (awksub_nonterminals -> (awksub_nonterminals, string) symbol list list) =
+  (Wednesday, <fun>)
+Stack overflow during evaluation (looping recursion?).
