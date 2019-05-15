@@ -22,7 +22,16 @@ lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
 check_nonnegative(N) :-
     N >= 0.
 
-check_domain_range()
+/* Rule that takes in a number N and a List L and returns true if the
+number of elements in the list equals N */
+check_length(N,L) :-
+    length(L,N).
+    
+/* Rule that takes in a number N and a List L and returns true if all
+elements in the list fall within the range 1..N inclusive */
+% fd_domain(Vars, Lower, Upper) constraints each element X of Vars to take a value in Lower..Upper.
+check_domain(N,L) :-
+    fd_domain(L,1,N).
 % -----
 
 % -----
@@ -37,15 +46,19 @@ tower(N, T, counts(Top,Bottom,Left,Right)) :-
     The predicate is non-deterministic, producing lists of increasing 
     length if List is a partial list and Int is unbound. */
     % Ensure size of list of lists T == N.
-    length(T,N),
+    check_length(N,T),
     % Ensure each of the rows Top Bottom Left and Right have N elements
-    maplist(length(T,N),
+    % Maplist: https://riptutorial.com/prolog/example/8003/maplist--2-3-
+    maplist(check_length(N),[Top,Bottom,Left,Right]),
     % https://stackoverflow.com/questions/6682987/prolog-map-procedure-that-applies-predicate-to-list-elements
     % Check if all elements in each row of T are unique
     maplist(fd_all_different, T),
     % Next we want to ensure all of them are within the range 1..N
-    % fd_domain(Vars, Lower, Upper) constraints each element X of Vars to take a value in Lower..Upper.
-    maplist(fd_domain(N,1,)).
+    maplist(check_domain(N), T),
+    % Transpose the matrix
+    % We're guaranteed that each row and column in this matrix has different values in each row
+    transpose(T, T_transpose)
+    %
 % -----
 
 % -----
@@ -53,34 +66,6 @@ tower(N, T, counts(Top,Bottom,Left,Right)) :-
 plain_tower(N, T, counts(Top,Bottom,Left,Right)) :-
     check_nonnegative(N),
     1=1.
-% -----
-
-% -----
-% Performance based on CPU Time
-% http://gprolog.univ-paris1.fr/manual/html_node/gprolog048.html#statistics%2F2
-% https://stackoverflow.com/questions/34970061/display-the-execution-times-for-each-goal-of-a-predicate-clause
-
-%Function to run a test case and determine CPU time for the tower rule
-tower_test(Total_time) :-
-    statistics(cpu_time, [Start|_]),
-    tower(5,_,counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])),
-    statistics(cpu_time, [Stop|_]),
-    Total-time is Stop - Start. 
-    
-%Function to run a test case and determine CPU time for the plain tower rule
-plain_tower_test(Total_time) :-
-    statistics(cpu_time, [Start|_]),
-    plain_tower(5,_,counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])),
-    statistics(cpu_time, [Stop|_]),
-    Total-time is Stop - Start. 
-
-%Function that actually computes the required ratio
-speedup(ratio_of_cpu_time) :-
-    % TT and PTT get bound to the respective CPU times returned.
-    tower_test(TT),
-    plain_tower_test(PTT),
-    % Unifies the above arguments to the floating-point ratio
-    ratio_of_cpu_time is PTT/TT.   
 % -----
 
 % -----
@@ -94,4 +79,32 @@ ambiguous(N, C, T1, T2) :-
     tower(N,T1,C),
     tower(N,T2,C),
     T1 \== T2.
+% -----
+
+% -----
+% Performance based on CPU Time
+% http://gprolog.univ-paris1.fr/manual/html_node/gprolog048.html#statistics%2F2
+% https://stackoverflow.com/questions/34970061/display-the-execution-times-for-each-goal-of-a-predicate-clause
+
+%Function to run a test case and determine CPU time for the tower rule
+tower_test(Total_time) :-
+    statistics(cpu_time, [Start|_]),
+    tower(5,_,counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])),
+    statistics(cpu_time, [Stop|_]),
+    Total_time is Stop - Start. 
+    
+%Function to run a test case and determine CPU time for the plain tower rule
+plain_tower_test(Total_time) :-
+    statistics(cpu_time, [Start|_]),
+    plain_tower(5,_,counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])),
+    statistics(cpu_time, [Stop|_]),
+    Total_time is Stop - Start. 
+
+%Function that actually computes the required ratio
+speedup(ratio_of_cpu_time) :-
+    % TT and PTT get bound to the respective CPU times returned.
+    tower_test(TT),
+    plain_tower_test(PTT),
+    % Unifies the above arguments to the floating-point ratio
+    ratio_of_cpu_time is PTT/TT.   
 % -----
