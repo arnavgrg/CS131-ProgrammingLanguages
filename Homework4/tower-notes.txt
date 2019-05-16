@@ -3,9 +3,7 @@ Table used had the following characteristics -
     N = 5
     T = ?
     C = counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])
-Ratio: Approx 13.4
 
 Ambiguous puzzle:
     N = 5
     C = counts([],[],[],[])
-

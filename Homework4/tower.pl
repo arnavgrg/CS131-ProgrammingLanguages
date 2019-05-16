@@ -33,17 +33,32 @@ elements in the list fall within the range 1..N inclusive */
 check_domain(N,L) :-
     fd_domain(L,1,N).
 
+/* */
+verify_row(0,_,[]).
+verify_row(Counter,Maximum_value,[Head|Tail]) :- 
+    Maximum_value >= Head,
+    verify_row(Counter,Maximum_value,Tail).
+verify_row(Counter,Maximum_value,[Head|Tail]) :-
+    Maximum_value < Head,
+    verify_row(New_counter,Head,Tail),
+    Counter is New_counter+1.
+
 /*Helps match the C constraints left and top with the corresponding rows/columns */
 check([],[]).
 /*Takes Constraint List, Matrix in this format*/
-check([Head1|Tail1][Head2|Tail2]) :-
-    . 
+check([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+    verify_row(Counter,0,Head_of_matrix),
+    Counter #= Head_of_constraint_list,
+    check(Tail_of_constraint_list,Tail_of_matrix).
 
 /*Helps match the C constraints right and bottom with the corresponding rows/columns */
 reverse_check([],[]).
-reverse_check([Head1|Tail1][]) :-
-    . 
-
+/*Takes Constraint List, Matrix in this format*/
+reverse_check([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+    reverse(Head_of_matrix,Reversed_head_of_matrix),
+    verify_row(Counter,0,Reversed_head_of_matrix),
+    Counter #= Head_of_constraint_list,
+    reverse_check(Tail_of_constraint_list,Tail_of_matrix).
 % -----
 
 % -----
@@ -51,7 +66,7 @@ reverse_check([Head1|Tail1][]) :-
 http://www.gprolog.org/manual/html_node/ */
 
 % Rule definition for tower
-tower(N, T, counts(Top,Bottom,Left,Right)) :-
+tower( N, T, counts(Top,Bottom,Left,Right)) :-
     % Ensure N is nonnegative
     N >= 0,
     /* http://www.swi-prolog.org/pldoc/man?predicate=length/2
@@ -79,11 +94,11 @@ tower(N, T, counts(Top,Bottom,Left,Right)) :-
     % This predicate is re-executable on backtracking.
     maplist(fd_labeling, T),
     % Need to check if the edge/tower heights condition in counts matches each of columns
-    check(Top, T_transpose)
-    reverse_check(Bottom, T_tranpose)
+    check(Top, T_transpose),
+    reverse_check(Bottom, T_transpose),
     % Need to check if the edge/tower heights condition in counts matches each of rows
-    check(Left, T) 
-    reverse_check(Right, T)
+    check(Left, T),
+    reverse_check(Right, T),
     /* Finally, generate Top, Bottom, Left and Right using the constraints defined incase they haven't
     already been defined */
     maplist(fd_labeling,[Top,Bottom,Left,Right]).
@@ -118,10 +133,10 @@ ambiguous(N, C, T1, T2) :-
 
 %Function to run a test case and determine CPU time for the tower rule
 tower_test(Total_time) :-
-    statistics(cpu_time, [Start|_]),
+    statistics(cpu_time,[Start|_]),
     tower(5,_,counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])),
     statistics(cpu_time, [Stop|_]),
-    Total_time is Stop - Start. 
+    Total_time is Stop - Start.
     
 %Function to run a test case and determine CPU time for the plain tower rule
 plain_tower_test(Total_time) :-
