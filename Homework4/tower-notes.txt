@@ -1,9 +1,58 @@
 Timing:
-Table used had the following characteristics -
-    N = 5
-    T = ?
-    C = counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])
+    Table used had the following characteristics -
+        N = 5
+        T = ?
+        C = counts([2,2,3,5,1],[2,3,2,1,4],[3,1,2,3,2],[1,4,2,3,2])
+    This table was generated using 
+        https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/towers.html
+    Ratio: 6.9458128078817731
 
-Ambiguous puzzle:
-    N = 5
-    C = counts([],[],[],[])
+To generate ambiguous puzzles, I ran the command
+    ambiguous(5,C,T1,T2)
+This generates a list of ambiguous puzzles. For example:
+
+5x5 (Two different ambiguous puzzles)
+
+C = counts([4,2,3,2,1],[1,3,2,3,2],[5,3,2,3,1],[1,2,3,2,2])
+T1 = [[1,2,3,4,5],[2,1,4,5,3],[4,5,2,3,1],[3,4,5,1,2],[5,3,1,2,4]]
+T2 = [[1,2,3,4,5],[3,1,4,5,2],[4,5,2,3,1],[2,4,5,1,3],[5,3,1,2,4]]
+
+C = counts([4,2,3,2,1],[2,2,1,4,3],[5,3,2,1,3],[1,2,3,2,2])
+T1 = [[1,2,3,4,5],[2,1,4,5,3],[4,5,2,3,1],[5,3,1,2,4],[3,4,5,1,2]]
+T2 = [[1,2,3,4,5],[3,1,4,5,2],[4,5,2,3,1],[5,3,1,2,4],[2,4,5,1,3]]
+
+However, this doesn't just apply to a 5x5 game. I tried this for other combinations as well, 
+including 4x4, 6x6, 7x7 and 8x8. There are ambiguous puzzles for all combinations of N > 4.
+
+4x4
+
+C = counts([4,2,2,1],[1,2,2,4],[4,2,2,1],[1,2,2,4])
+T1 = [[1,2,3,4],[2,1,4,3],[3,4,1,2],[4,3,2,1]]
+T2 = [[1,2,3,4],[2,4,1,3],[3,1,4,2],[4,3,2,1]]
+
+6x6
+
+C = counts([6,3,4,2,2,1],[1,2,2,4,2,4],[6,3,4,2,2,1],[1,2,2,4,2,4])
+T1 = [[1,2,3,4,5,6],[2,1,4,3,6,5],[3,4,5,6,1,2],[4,3,6,5,2,1],[5,6,1,2,3,4],[6,5,2,1,4,3]]
+T2 = [[1,2,3,4,5,6],[2,1,4,6,3,5],[3,4,2,5,6,1],[4,6,5,3,1,2],[5,3,6,1,2,4],[6,5,1,2,4,3]]
+
+7x7
+
+C = counts([7,4,4,2,3,2,1],[1,2,2,4,2,4,4],[7,4,3,4,2,2,1],[1,2,2,2,3,4,6])
+T1 = [[1,2,3,4,5,6,7],[2,1,4,3,6,7,5],[3,4,1,2,7,5,6],[4,5,6,7,1,2,3],[5,3,7,6,2,1,4],
+                [6,7,2,5,3,4,1],[7,6,5,1,4,3,2]]
+T2 = [[1,2,3,4,5,6,7],[2,1,4,3,6,7,5],[3,4,1,2,7,5,6],[4,5,6,7,1,2,3],[5,7,2,6,3,1,4],
+                [6,3,7,5,2,4,1], [7,6,5,1,4,3,2]]
+
+To test whether these puzzles are indeed ambiguous, I passed in C into my tower 
+function. For example:
+    tower(6,T,counts([6,3,4,2,2,1],[1,2,2,4,2,4],[6,3,4,2,2,1],[1,2,2,4,2,4]))
+This returned differnet possible combinations for T (The same as the ones above).
+I tried searching for a third possible value of T, however, the program spun into
+an infinite loop suggesting that
+    1) The program has to backtrack a lot, which makes sense given that both solutions start 
+    are rooted on the same tree (the first row in both solutions is the same).
+    2) We don't know if there is indeed a third possible solution because the program never 
+    returns, and as Professor Eggert mentioned in class, this creates a case of 
+    non-determinism where we don't know if it's still searching through the search tree (a 
+    graph) for a solution.

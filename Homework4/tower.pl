@@ -1,22 +1,3 @@
-/* GNU Prolog finite domain solver: http://www.gprolog.org/manual/html_node/ */
-
-% -----
-% Function to create the transpose of a matrix
-% https://stackoverflow.com/questions/4280986/how-to-transpose-a-matrix-in-prolog
-transpose([], []).
-transpose([F|Fs], Ts) :-
-    transpose(F, [F|Fs], Ts).
-
-transpose([], _, []).
-transpose([_|Rs], Ms, [Ts|Tss]) :-
-        lists_firsts_rests(Ms, Ts, Ms1),
-        transpose(Rs, Ms1, Tss).
-
-lists_firsts_rests([], [], []).
-lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
-        lists_firsts_rests(Rest, Fs, Oss).
-% -----
-
 % -----
 % Helper methods
 /* Rule that takes in a number N and a List L and returns true if the
@@ -27,32 +8,55 @@ check_length(N,L) :- length(L,N).
 elements in the list fall within the range 1..N inclusive */
 check_domain(N,L) :- fd_domain(L,1,N).
 
+% Function to create the transpose of a matrix
+%http://blog.ivank.net/prolog-matrices.html
+% trans(+M1, -M2) - transpose of square matrix
+transpose([[H|T] |Tail], [[H|NT] |NTail]) :- 
+	firstCol(Tail, NT, Rest), 
+    transpose(Rest, NRest), 
+    firstCol(NTail, T, NRest).
+transpose([], []).
+% firstCol(+Matrix, -Column, -Rest)  or  (-Matrix, +Column, +Rest)
+firstCol([[H|T] |Tail], [H|Col], [T|Rows]) :- 
+    firstCol(Tail, Col, Rows).
+firstCol([], [], []).
+
 /*Function that verifies that the edge count = row count from that side*/
+/*Base case: Set counter to 0*/
 verify_row(0,_,[]).
+/*Rule that compares the maximum value yet to the current head of the row.
+If it is greater, then we just continue because this element is not visible*/
 verify_row(Counter,Maximum_value,[Head|Tail]) :- 
     Maximum_value >= Head,
     verify_row(Counter,Maximum_value,Tail).
+/*Rule that compares the maximum value yet to the current head of the row.
+If it is less than the current head, then we want to update current maximum to 
+this value and increment counter by 1 because this is a new tower we can see.*/
 verify_row(Counter,Maximum_value,[Head|Tail]) :-
     Maximum_value < Head,
     verify_row(New_counter,Head,Tail),
     Counter is New_counter+1.
 
 /*Helps match the C constraints left and top with the corresponding rows/columns */
-check([],[]).
+check_row([],[]).
 /*Takes Constraint List, Matrix in this format*/
-check([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+check_row([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+    /* Call helper function*/
     verify_row(Counter,0,Head_of_matrix),
+    % Ensures that the verification and constraint value are the same for this row
     Counter #= Head_of_constraint_list,
-    check(Tail_of_constraint_list,Tail_of_matrix).
+    check_row(Tail_of_constraint_list,Tail_of_matrix).
 
 /*Helps match the C constraints right and bottom with the corresponding rows/columns */
-reverse_check([],[]).
+reverse_check_row([],[]).
 /*Takes Constraint List, Matrix in this format*/
-reverse_check([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+reverse_check_row([Head_of_constraint_list|Tail_of_constraint_list],[Head_of_matrix|Tail_of_matrix]) :-
+    % Reverses the row so that it's easier to call verify_row instead of having to rewrite logic
     reverse(Head_of_matrix,Reversed_head_of_matrix),
     verify_row(Counter,0,Reversed_head_of_matrix),
+    % Ensures that the verification and constraint value are the same for this row
     Counter #= Head_of_constraint_list,
-    reverse_check(Tail_of_constraint_list,Tail_of_matrix).
+    reverse_check_row(Tail_of_constraint_list,Tail_of_matrix).
 % -----
 
 % -----
@@ -78,30 +82,50 @@ tower( N, T, counts(Top,Bottom,Left,Right)) :-
     /*Creates a list of lists T where each list has the constraints, that is, numbers between 1..N*/
     maplist(fd_labeling, T),
     % Need to check if the edge/tower heights condition in counts matches each of columns
-    check(Top, T_transpose),
-    reverse_check(Bottom, T_transpose),
+    check_row(Top, T_transpose),
+    reverse_check_row(Bottom, T_transpose),
     % Need to check if the edge/tower heights condition in counts matches each of rows
-    check(Left, T),
-    reverse_check(Right, T),
+    check_row(Left, T),
+    reverse_check_row(Right, T),
     /* Finally, generate Top, Bottom, Left and Right using the constraints defined incase they haven't
     already been defined */
     maplist(fd_labeling,[Top,Bottom,Left,Right]).
 % -----
 
 % -----
+/* A substitute for fd_domain. Since it generates unique/distinct numbers
+it also accounts for fd_all_different */
+p_domain(N,L) :-
+    findall(Num, between(1, N, Num), L).
+
+/* Generator function that generates all permutations. Generates it 
+one row and one column at a time, thereby cutting down the possible 
+number of combinations rapidly and reducing the search space. */
+p_labeling(_,[],[]).
+p_labeling(Domain,[T_Head|T_Tail],[Transpose_Head|Transpose_Tail]) :-
+    permutation(Domain,T_Head),
+    permutation(Domain,Transpose_Head),
+    p_labeling(Domain,T_Tail,Transpose_Tail).
+
 % Rule definition for plain tower
 plain_tower(N, T, counts(Top,Bottom,Left,Right)) :-
     N >= 0,
     check_length(N,T),
-    maplist(check_length(N),[Top,Bottom,Left,Right]),
     maplist(check_length(N), T),
-    transpose(T, T_transpose).
+    maplist(check_length(N),[Top,Bottom,Left,Right]),
+    p_domain(N, T_Domain),
+    transpose(T, T_transpose),
+    p_labeling(T_Domain,T,T_transpose),
+    check_row(Top, T_transpose),
+    reverse_check_row(Bottom, T_transpose),
+    check_row(Left, T),
+    reverse_check_row(Right, T).
 % -----
 
 % -----
 % Rule definition for ambiguous
-ambiguous(N, C, T1, T2) :-
-    check_nonnegative(N),
+ambiguous( N, C, T1, T2) :-
+    N >= 0,
     tower(N,T1,C),
     tower(N,T2,C),
     T1 \== T2.
@@ -109,8 +133,6 @@ ambiguous(N, C, T1, T2) :-
 
 % -----
 % Performance based on CPU Time
-% http://gprolog.univ-paris1.fr/manual/html_node/gprolog048.html#statistics%2F2
-
 %Function to run a test case and determine CPU time for the tower rule
 tower_test(Total_time) :-
     statistics(cpu_time,[Start|_]),
