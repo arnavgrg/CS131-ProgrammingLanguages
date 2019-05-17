@@ -10,13 +10,11 @@ check_domain(N,L) :- fd_domain(L,1,N).
 
 % Function to create the transpose of a matrix
 %http://blog.ivank.net/prolog-matrices.html
-% trans(+M1, -M2) - transpose of square matrix
 transpose([[H|T] |Tail], [[H|NT] |NTail]) :- 
 	firstCol(Tail, NT, Rest), 
     transpose(Rest, NRest), 
     firstCol(NTail, T, NRest).
 transpose([], []).
-% firstCol(+Matrix, -Column, -Rest)  or  (-Matrix, +Column, +Rest)
 firstCol([[H|T] |Tail], [H|Col], [T|Rows]) :- 
     firstCol(Tail, Col, Rows).
 firstCol([], [], []).
