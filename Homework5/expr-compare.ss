@@ -22,7 +22,7 @@
 ;Serves as a helper for compare-lengths
 (define (length-l x)
     (cond 
-        ((or (list? x) (pair? x)) 
+        ((or (pair? x) (list? x)) 
             (length x))
         (else 1)
     )
@@ -44,7 +44,22 @@
 
 ;Helper function to process expressions with lambda in them
 (define (lambda-helper x y)
-    #t
+    (let ((head-x (car x))
+          (head-y (car y))
+          (tail-x (cdr x))
+          (tail-y (cdr y)))
+        (cond 
+            ;Check if the length of lambda function's arguments is the same
+            ((not (compare-lengths (car tail-x) (car tail-y))) (generate-output x y))
+            ;Ensure that they are actually lists incase the previous conditional fails
+            ((not (and ((list? (car tail-x)) (list? (cat tail-y)))))
+                (generate-output x y))
+            ;Check if the first element in the parameter list is the same
+            ;FINISH THIS CASE
+            ((equal? (car tail-x) (car tail-y)) ())
+            ;OTHERWISE, NEED TO JOIN WITH EXCLAMATION MARK AND BIND
+        )
+    )
 )
 
 ;Look for specific keywords and if they exist, return true else return false
