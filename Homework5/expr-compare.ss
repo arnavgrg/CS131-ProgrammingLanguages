@@ -63,11 +63,26 @@
 
 ;Helper method for update-lambda-body to actually update the body incase of a 
 ;discrepancy/detected binding 
-(define (update binding params body)
+(define (update binding param body)
     (cond 
         ;Base case to recurse over elements in body
         ((empty? body) '())
-        ;
+        ;Minimum number of inputs actually being binded to 
+        ((< (length-l body) 2) 
+            (if (symbol? body)
+                (if (equal? body binding) 
+                    param 
+                    body
+                )
+                (if (equal? body (list binding)) 
+                    (list param) 
+                    body))
+        )
+        ;If the head of the body is the same as the binding, then we don't need to 
+        ;update anything so we can move ahead because it is the same as param (try this)
+        ((equal? (car body) binding) (cons param (update binding param (cdr body))))
+        ;Otherwise, 
+        ((cons (car body) (update binding param (cdr body))))
     )
 )
 
@@ -117,7 +132,7 @@
             ;Check if the length of lambda function's arguments is the same
             ((not (compare-lengths (car tail-x) (car tail-y))) (generate-output x y))
             ;Ensure that they are actually lists incase the previous conditional fails
-            ((not (and ((list? (car tail-x)) (list? (cat tail-y)))))
+            ((not (and ((list? (car tail-x)) (list? (car tail-y)))))
                 (generate-output x y))
             ;Check if the first element in the parameter list is the same
             ((equal? head-x head-y) 
@@ -135,8 +150,7 @@
 
 ;Look for specific keywords and if they exist, return true else return false
 (define (check_keywords x)
-    (if 
-        (or (equal? x 'lambda)
+    (if (or (equal? x 'lambda)
             (equal? x lambda-sym)
             (equal? x 'quote)
             (equal? x 'if))
@@ -149,8 +163,7 @@
 (define (check_lambdas x y)
     (if 
         ;lambda lambda and lambda-sym lambda-sym are already covered in expr-compare
-        (or 
-            (and (equal? x 'lambda) (equal? y lambda-sym))
+        (or (and (equal? x 'lambda) (equal? y lambda-sym))
             (and (equal? x lambda-sym) (equal? y 'lambda)))
         #t
         #f
@@ -183,7 +196,7 @@ instance where both of them don't have the same first elements |#
             ;See if the head of either lists are a combination of lambdas, and if yes, process them
             ((check_lambdas head-x head-y) (process-lambda x y))
             ;If either of them have a keyword at the beginning, immediately generate a % output
-            ((or (check_keywords head-x) (check_keywords head-y)) (generate-output x ))
+            ((or (check_keywords head-x) (check_keywords head-y)) (generate-output x y))
             ;Otherwise, just pass these back to our main expr-compare function, but fuse the return 
             ;values of the head and tail of either list into one list. Essentially, process them differently.
             ((cons (expr-compare head-x head-y) (expr-compare (cdr x) (cdr y))))
@@ -212,9 +225,4 @@ instance where both of them don't have the same first elements |#
         ;If none of the the conditions are met, just terminate and move ahead
         (else (generate-output x y))
     )
-)
-
-;
-(define (test-expr-compare x y)
-    #t
 )
