@@ -2,10 +2,6 @@
 ;https://www.fileformat.info/info/unicode/char/3bb/index.htm
 (define lambda-sym (string->symbol "\u03BB"))
 
-;Defined as mentioned in the spec
-(define test-expr-x '(+ 3 ((lambda (a b) (list a b)) 1 2)))
-(define test-expr-y '(+ 2 ((lambda (a c) (list a c)) 1 2)))
-
 ;Use % to represent a subexpression that is #t in LDA's version and #f in SVM's version
 (define (check-tf x y)
     (and (equal? x #t) (equal? y #f) '%))
@@ -222,5 +218,17 @@ instance where both of them don't have the same first elements |#
             ))
         ;If none of the the conditions are met, just terminate and move ahead
         (else (generate-output x y))
+    )
+)
+
+;Defined as mentioned in the spec
+(define test-expr-x '(+ 3 ((lambda (a b) (list a b)) 1 2)))
+(define test-expr-y '(+ 2 ((lambda (a c) (list a c)) 1 2)))
+
+(define (test-expr-compare x y)
+    (let ((% #t))
+        (if (
+            (equal?)
+        )
     )
 )
