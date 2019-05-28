@@ -221,14 +221,15 @@ instance where both of them don't have the same first elements |#
     )
 )
 
-;Defined as mentioned in the spec
-(define test-expr-x '(+ 3 ((lambda (a b) (list a b)) 1 2)))
-(define test-expr-y '(+ 2 ((lambda (a c) (list a c)) 1 2)))
+;Test cases for test-expr-compare
+(define test-expr-x '(list (λ (a c) (if (equal? (a c)) 10 20))))
+(define test-expr-y '(list (lambda (a b) (if (eqv? (a b)) 10 20))))
 
+;Test-expr-compare 
 (define (test-expr-compare x y)
-    (and (equal? (eval x) (eval (list 'let '((% #t)) (eval (expr-compare x y)))))
-         (equal? (eval y) (eval (list 'let '((% #f)) (eval (expr-compare x y)))))
+    (and (equal? (eval x) (eval (list 'let '((% #t)) (expr-compare x y)))) 
+         (equal? (eval y) (eval (list 'let '((% #f)) (expr-compare x y))))
     )
 )
 
-(test-expr-compare '((lambda (a) (f a)) 1) '((lambda (a) (g a)) 2))
+;(test-expr-compare test-expr-x test-expr-y)
