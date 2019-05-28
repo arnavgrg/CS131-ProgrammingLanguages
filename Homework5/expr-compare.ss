@@ -18,135 +18,25 @@
 (define (generate-output x y)
     (quasiquote (if % (unquote x) (unquote y))))
 
+;Function to merge x and y into x!y
+;https://www.gnu.org/software/guile/manual/html_node/Reversing-and-Appending-Strings.html
+(define (merge-xy x y)
+    (string->symbol (string-append (symbol->string x) "!" (symbol->string y))))
+
 ;Get the length of a list
 ;Serves as a helper for compare-lengths
 (define (length-l x)
     (cond 
-        ((or (pair? x) (list? x)) (length x))
+        ((null? x) 0)
+        ((list? x) (length x))
+        ((pair? x) (+ 1 (length-l (cdr x))))
         (else 1)
     )
 )
 
 ;Function to compare the length of two lists
 (define (compare-lengths x y)
-    (let ((first (length-l x))
-         (second (length-l y)))
-        (equal? first second)
-    )
-)
-
-;Function to merge x and y into x!y
-;https://www.gnu.org/software/guile/manual/html_node/Reversing-and-Appending-Strings.html
-(define (merge-xy x y)
-    (string->symbol (string-append (symbol->string x) "!" (symbol->string y))))
-
-;Function to process lambda's parameters
-(define (compare-lambda-arguments x y)
-    ;Receives lambda's parameters (both of which are lists)
-    (let ((head-x (car x))
-          (head-y (car y))
-          (tail-x (cdr x))
-          (tail-y (cdr y))) 
-        (cond 
-            ;Base case for recursion
-            ((or (empty? x) (empty? y) '()))
-            ;If x is a symbol, then we should merge it with y
-            ((symbol? x) (if (equal? x y) y (merge-xy x y)))
-            ;If they're the same, keep one and move on to the next set of arguments in the parameter list
-            ((equal? head-x head-y) (cons head-x (compare-lambda-arguments tail-x tail-y)))
-            ;If they're not the same, they must be different 
-            ((let ((binding (merge-xy head-x head-y)))
-                (cons binding (compare-lambda-arguments tail-x tail-y))))
-        )
-    )
-)
-
-;Helper method for update-lambda-body to actually update the body incase of a 
-;discrepancy/detected binding 
-(define (update binding param body)
-    (cond 
-        ;Base case to recurse over elements in body
-        ((empty? body) '())
-        ;Minimum number of inputs actually being binded to 
-        ((< (length-l body) 2) 
-            (if (symbol? body)
-                (if (equal? body binding) 
-                    param 
-                    body
-                )
-                (if (equal? body (list binding)) 
-                    (list param) 
-                    body))
-        )
-        ;If the head of the body is the same as the binding, then we don't need to 
-        ;update anything so we can move ahead because it is the same as param (try this)
-        ((equal? (car body) binding) (cons param (update binding param (cdr body))))
-        ;Otherwise, 
-        ((cons (car body) (update binding param (cdr body))))
-    )
-)
-
-;Helper function to update the parameters and body of the lambda function
-;and then process the remainder of the code as needed
-(define (update-lambda-body binding params body)
-    (cond
-        ;If argument list is empty, then just return the processed param-list
-        ((empty? params) binding)
-        ((symbol? params) (if (equal? params binding) binding (update binding params body)))
-        ;If the bindings are not the same, then we want to update the body because there was a change
-        ;that we detected (the discrepancy between new bindings created and the OG param list)
-        ((not (equal? (car binding) (car params))) 
-            (update-lambda-body (cdr binding) (cdr params) (update (car binding) (car params) body)))
-        ;Otherwise, the heads are equal (no binding) so we can try the next elements in both lists
-        ((update-lambda-body (cdr binding) (cdr params) body))
-    )
-)
-
-;Helper Function helps split the remainder of the lambda function into its arguments 
-;and body and processes each one of them separately |#
-(define (lambda-helper x y)
-    ;Receive lambda parameters and body
-    ;car -> arguments, cdr -> body
-    (cond 
-        ((not (equal? (length-l x) (length-l y))) (generate-output x y))
-        ;binding contains the list of processed arguments
-        ((let ((binding (compare-lambda-arguments (car x) (car y))))
-            ;Now need to process the body of the lambda expressions
-            ;However, the bodies need to be updated with the new parameter list
-            (list binding (expr-compare 
-                ;car-> arguments, cdr->body
-                (update-lambda-body binding (car x) (car (cdr x)))
-                (update-lambda-body binding (car y) (car (cdr y)))
-                    ))
-        ))
-    )
-)
-
-;Helper function to process expressions with lambda in them
-(define (process-lambda x y)
-    (let ((head-x (car x))
-          (head-y (car y))
-          (tail-x (cdr x))
-          (tail-y (cdr y)))
-        (cond 
-            ;Check if the length of lambda function's arguments is the same
-            ((not (compare-lengths (car tail-x) (car tail-y))) (generate-output x y))
-            ;Ensure that they are actually lists incase the previous conditional fails
-            ((not (and ((list? (car tail-x)) (list? (car tail-y)))))
-                (generate-output x y))
-            ;Check if the first element in the parameter list is the same
-            ((equal? head-x head-y) 
-                ;Keep one of the lambdas and process the arguments of whatever is remaining
-                (if (equal? head-x 'lambda)
-                    (cons 'lambda (lambda-helper tail-x tail-y))
-                    (cons lambda-sym (lambda-helper tail-x tail-y))))
-            ;If the first elements are not the same, then just use the lambda symbol 
-            ;and pass the remainder (including argument list for the lambda function)
-            ;to lambda-helper
-            (else (cons lambda-sym (lambda-helper tail-x tail-y)))
-        )
-    )
-)
+    (if (equal? (length-l x) (length-l y)) #t #f))
 
 ;Look for specific keywords and if they exist, return true else return false
 (define (check_keywords x)
@@ -167,6 +57,114 @@
             (and (equal? x lambda-sym) (equal? y 'lambda)))
         #t
         #f
+    )
+)
+
+;Helper method for update-lambda-body to actually update the body incase of a 
+;discrepancy/detected binding 
+(define (update binding param body)
+    (cond 
+        ;Base case to recurse over elements in body
+        ((null? body) '())
+        ;Minimum number of inputs actually being binded to 
+        ((< (length-l body) 2) 
+            (if (symbol? body)
+                ;If body and param are equal, then we can just return binding
+                (if (equal? body param) 
+                    binding 
+                    body)
+                ;If body and the list of params are equal, then we can just return 
+                ;the binding
+                (if (equal? body (list param)) 
+                    (list binding) 
+                    body)))
+        ;If the head of the body is the same as the binding, then we don't need to 
+        ;update anything so we can move ahead because it is the same as param (try this)
+        ((equal? (car body) param) (cons binding (update binding param (cdr body))))
+        ;Otherwise, 
+        ((cons (car body) (update binding param (cdr body))))
+    )
+)
+
+;Helper function to update the parameters and body of the lambda function
+;and then process the remainder of the code as needed
+(define (update-lambda-body params binding body)
+    (cond
+        ;If argument list is empty, then just return the processed param-list
+        ((null? params) body)
+        ((symbol? params) (if (equal? params binding) body (update binding params body)))
+        ;If the bindings are not the same, then we want to update the body because there was a change
+        ;that we detected (the discrepancy between new bindings created and the OG param list)
+        ((not (equal? (car binding) (car params)))
+            (update-lambda-body (cdr params) (cdr binding) (update (car binding) (car params) body)))
+        ;Otherwise, the heads are equal (no binding) so we can try the next elements in both lists
+        ((update-lambda-body (cdr params) (cdr binding) body))
+    )
+)
+
+;Function to process lambda's parameters
+(define (compare-lambda-arguments x y)
+    ;Receives lambda's parameters (both of which are lists)
+    (cond 
+        ;Base case for recursion
+        ((or (null? x) (null? y)) '())
+        ;If x is a symbol, then we should merge it with y
+        ((symbol? x) (if (equal? x y) x (merge-xy x y)))
+        ;If they're the same, keep one and move on to the next set of arguments in the parameter list
+        ((equal? (car x) (car y)) (cons (car x) (compare-lambda-arguments (cdr x) (cdr y))))
+        ;If they're not the same, they must be different 
+        ((let ((binding (merge-xy (car x) (car y))))
+            (cons binding (compare-lambda-arguments (cdr x) (cdr y)))))
+    )
+)
+
+;Helper Function helps split the remainder of the lambda function into its arguments 
+;and body and processes each one of them separately |#
+(define (lambda-helper x y)
+    ;Receive lambda parameters and body
+    ;car -> arguments, cdr -> body
+    (cond 
+        ((not (compare-lengths x y)) (generate-output x y))
+        ;binding contains the list of processed arguments
+        ((let ((binding (compare-lambda-arguments (car x) (car y))))
+            ;Now need to process the body of the lambda expressions
+            ;However, the bodies need to be updated with the new parameter list
+            (list binding (expr-compare 
+                ;car-> arguments, cdr->body
+                (update-lambda-body (car x) binding (car (cdr x)))
+                (update-lambda-body (car y) binding (car (cdr y)))
+                    )
+            )
+        ))
+    )
+)
+
+;Helper function to process expressions with lambda in them
+(define (process-lambda x y)
+    (let ((head-x (car x))
+          (head-y (car y))
+          (tail-x (cdr x))
+          (tail-y (cdr y)))
+        (cond 
+            ;Check if the length of lambda function's arguments is the same
+            ((not (compare-lengths (car tail-x) (car tail-y))) (generate-output x y))
+            ;Ensure that they are actually lists incase the previous conditional fails
+            ; ((not (and (list? (car tail-x)) (list? (car tail-y))))
+            ;     (generate-output x y))
+            ((or (and (not (list? (car tail-x))) (list? (car tail-y))) 
+                 (and (not (list? (car tail-y))) (list? (car tail-x))))
+                       (generate-output x y))
+            ;Check if the first element in the parameter list is the same
+            ((equal? head-x head-y) 
+                ;Keep one of the lambdas and process the arguments of whatever is remaining
+                (if (equal? head-x 'lambda)
+                    (cons 'lambda (lambda-helper tail-x tail-y))
+                    (cons lambda-sym (lambda-helper tail-x tail-y))))
+            ;If the first elements are not the same, then just use the lambda symbol 
+            ;and pass the remainder (including argument list for the lambda function)
+            ;to lambda-helper
+            ((cons lambda-sym (lambda-helper tail-x tail-y)))
+        )
     )
 )
 
