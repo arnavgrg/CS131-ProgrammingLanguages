@@ -226,9 +226,9 @@ instance where both of them don't have the same first elements |#
 (define test-expr-y '(+ 2 ((lambda (a c) (list a c)) 1 2)))
 
 (define (test-expr-compare x y)
-    (let ((% #t))
-        (if (
-            (equal?)
-        )
+    (and (equal? (eval x) (eval (list 'let '((% #t)) (eval (expr-compare x y)))))
+         (equal? (eval y) (eval (list 'let '((% #f)) (eval (expr-compare x y)))))
     )
 )
+
+(test-expr-compare '((lambda (a) (f a)) 1) '((lambda (a) (g a)) 2))
