@@ -10,6 +10,7 @@ apiKey = "AIzaSyC7mqFJt6wYkoL3KGzAoBNXFGbWqi6ptDw"
 
 #Global file_name which will be changed within functions as needed
 file_name = None
+
 #Global loop variable for asyncio
 loop = None
 
@@ -45,7 +46,6 @@ def error(message):
 
 #Function to write output to the outlog.log file
 def write_to_file(message):
-    global file_name
     f = open(file_name, 'a+')
     f.write(message+"\n")
     f.close()
@@ -87,7 +87,11 @@ async def get_info(generated_url, limit):
                 write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
     return output_to_be_returned
 
-async def server_callback():
+#Callback function for start_server/create_server
+#Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
+#https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader
+#https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamWriter
+async def server_callback(reader, write):
     await asyncio.sleep(1)
     print("Reached!")
 
@@ -100,7 +104,7 @@ def main():
     file_name = str(sys.argv[1]) + '.log'
     #For some reason, if I don't do this, the file is never created
     open(file_name, 'a+').close()
-    print("Connecting to {}...".format(sys.argv[1]))
+    logfile = open(file_name, 'a+')
     #https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop
     #https://docs.python.org/3/library/asyncio-eventloop.html#server-objects
     #Event loops run asynchronous tasks and callbacks, perform network IO operations, 
@@ -116,16 +120,20 @@ def main():
     #A function that can be entered and exited multiple times, suspended and resumed each time, is called 
     #a coroutine.
     server = loop.run_until_complete(coro)
+    print("Connecting to server '{}'...".format(sys.argv[1]))
     #Run infinitely until keyboard interrupt
     try:
         loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        #Close the server and wait until it is closed
         server.close()
         loop.run_until_complete(server.wait_closed())
+        #Close the loop, write last line to logfile and exit with status 0
         loop.close()
-        print("\n%s is shutting down..." % sys.argv[1])
+        logfile.write("\n%s is shutting down..." % sys.argv[1])
+        logfile.close()
         sys.exit(0)
 
 if __name__ == "__main__":
