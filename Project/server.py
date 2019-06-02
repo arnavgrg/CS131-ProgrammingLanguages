@@ -14,6 +14,9 @@ logfile = None
 #Global loop variable for asyncio
 loop = None
 
+#Want to be able to track of clients currently communicating with the server
+currentClients = {}
+
 #Server names with their assigned port numbers
 #Starting and ending port numbers
 #START_ = 11760, END_ = 11768
@@ -52,9 +55,7 @@ def write_to_file(message):
 
 #Function to perform error checking
 def error_check(args):
-    #Check if the file name already exists, if yes, delete it
-    #if os.path.exists(file_name):
-    #    os.remove(file_name)
+    #TODO: Check if the file name already exists, if yes, delete it
     #Check length of the arguments
     if (len(args) != 2):
         error("Invalid input!! Input format is python3 server.py <server_name>")
@@ -64,9 +65,6 @@ def error_check(args):
 
 #Asynchronour HTTP get request to get JSON object from the Google Places API
 async def get_info(generated_url, limit):
-    #If limit < 0, then the original input passed in is invalid
-    if limit < 0:
-        write_to_file('ERROR: Invalid value passed in during WHATSAT call!!!')
     output_to_be_returned = ""
     #Asynchronous get request 
     #Create client session
@@ -173,9 +171,26 @@ async def checkKeyword(text):
     elif text[0] == "AT": 
         return await(handleWHATSAT)
     #If neither, then it is an invalid command
-    #Servers should respond to invalid commands with a line that contains a question mark (?), a space, and then a copy of the invalid command.
     else:
         return -1
+
+#Helper method to generate all the messages for various commands
+async def generate_output(text, recTime, detectedKeyword):
+    outputMessage = ""
+    #Using strip to remove beginning and trailing white spaces
+    tokenized = text.strip().split()
+    if detectedKeyword == -1:
+        #Servers should respond to invalid commands with a line that contains a question mark (?), a space, and then a copy of the invalid command.
+        return "? " + text
+    elif tokenized[0] == 'IAMAT':
+        pass
+    elif tokenized[0] == 'WHATSAT':
+        pass
+    elif tokenized[0] == 'AT':
+        pass
+    else:
+        pass
+    return outputMessage
 
 #Callback function for start_server/create_server
 #Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
@@ -227,6 +242,7 @@ def main():
     try:
         loop.run_forever()
     except KeyboardInterrupt:
+        #If keyboard interrupt, do nothing
         pass
     finally:
         #Close the server and wait until it is closed
