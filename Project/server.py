@@ -37,7 +37,7 @@ allowed_communications = {
 }
 
 #Valid commands that can be sent by a client/server
-valid_commands = ['IAMAT', 'WHATSAT']
+valid_commands = ['IAMAT', 'WHATSAT', 'AT']
 
 #Function to write error messages to the file and exit with status 1
 def error(message):
@@ -79,20 +79,10 @@ async def get_info(generated_url, limit):
                 #It is a common case to return JSON data in response, aiohttp.web provides a shortcut 
                 #for returning JSON – aiohttp.web.json_response()
                 raw = await url_response.json()
-                if limit <= 20:
-                    output_to_be_returned = raw['result'][0:limit]
-                else:
-                    output_to_be_returned = raw['result'][0:20]
+                output_to_be_returned = raw['result'][0:limit]
             else:
                 write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
     return output_to_be_returned
-
-#Function to handle WHATSAT messages
-#Format:
-#WHATSAT kiwi.cs.ucla.edu 10 5
-async def handleWHATSAT(text):
-    if len(text) != 4:
-        return -1
 
 #Function to parse through the coordinates received by the client
 #Don't want to make this async because we want to wait till its completion (blocking)
@@ -110,10 +100,10 @@ def parseCoords(coords):
             dotIndexes.append(index)
     #Want to sure there are only 2 of either + or - 
     if len(signIndexes) != 2:
-        return None, None
+        return [None, None]
     #If there are more than two dots, then there is an issue
     elif len(dotIndexes) != 2:
-        return None, None
+        return [None, None]
     else:
         #Need to subtract 1 to get the signs, otherwise it gets the wrong indexes
         latitude = coords[signIndexes[0]-1:signIndexes[1]-1]
@@ -121,8 +111,7 @@ def parseCoords(coords):
     return [latitude, longitude]
 
 #Function to handle IAMAT messages
-#Format: 
-#IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+#Format: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
 async def handleIAMAT(text):
     #Should have exactly 4 elements in the list
     if (len(text) != 4):
@@ -142,6 +131,34 @@ async def handleIAMAT(text):
     #Otherwise everything is valid, so return success code 1
     return 1
 
+#Function to handle WHATSAT messages
+#Format: WHATSAT kiwi.cs.ucla.edu 10 5
+async def handleWHATSAT(text):
+    if len(text) != 4:
+        return -1
+    hostName = text[1]
+    radius = text[2]
+    limit = text[3]
+    #Validate inputs in WHATSAT message
+    if len(radius) < 1 or len(limit) < 1 or len(hostName) < 1:
+        return -1
+    radius = int(radius)
+    limit = int(limit)
+    #The radius must be at most 50 km
+    if radius <= 0 or radius > 50:
+        return -1
+    #Information bound must be at most 20 items
+    elif limit <= 0 or limit > 20:
+        return -1
+    return 1
+
+#Helper function for checkKeyword that verifies messages with 'AT'
+#FORMAT: AT Goloman +0.263873386 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+async def handleAT(text):
+    if len(text) != 6:
+        return -1
+    return 1
+
 #Parse through the message received to see how to handle it
 async def checkKeyword(text):
     if text == None or len(text) == 0:
@@ -149,11 +166,12 @@ async def checkKeyword(text):
     elif text[0] not in valid_commands:
         return -1
     elif text[0] == "IAMAT":
-        handleResult = await handleIAMAT(text)
-        return handleResult
+        return await handleIAMAT(text)
     elif text[0] == "WHATSAT":
-        handleResult = await handleWHATSAT(text)
-        return handleResult
+        return await handleWHATSAT(text)
+    #Communication between servers itself
+    elif text[0] == "AT": 
+        return await(handleWHATSAT)
     #If neither, then it is an invalid command
     #Servers should respond to invalid commands with a line that contains a question mark (?), a space, and then a copy of the invalid command.
     else:
@@ -174,6 +192,7 @@ async def server_callback(reader, write):
     message = " ".join(read_data.decode().split())
     detectedKeyword = await checkKeyword(message.split())
     if detectedKeyword == -1:
+        print("Invalid input passed: ", message)
         sys.exit(1)
 
 #Main driver function
@@ -203,7 +222,7 @@ def main():
     #a coroutine.
     server = loop.run_until_complete(coro)
     print("Connecting to server {}...".format(sys.argv[1]))
-    logfile.write("Opened connection to server..\n")
+    logfile.write("Opened connection to server %s..\n" % sys.argv[1])
     #Run infinitely until keyboard interrupt
     try:
         loop.run_forever()
