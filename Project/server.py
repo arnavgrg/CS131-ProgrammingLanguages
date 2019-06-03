@@ -74,7 +74,7 @@ async def floodServers(text):
             reader, writer = await asyncio.open_connection('127.0.0.1', port_numbers[server], loop=loop)
             logfile.write("Opened connection to %s!!\n" % server)
             #Write to the server 
-            writer.write(text.encode())
+            writer.write(text.encode() + "\n".encode())
             await writer.drain()
             #Log that communication message has been transmitted
             logfile.write("ECHOED message to %s!\n" % server)
@@ -160,9 +160,9 @@ async def get_info(generated_url, limit):
                         output_to_be_returned[key] = raw[key]
                 output_to_be_returned['results'] = raw['results'][0:limit]
             else:
-                write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
+                logfile.write("ERROR: Async get request failed while trying WHATSAT!!!\n")
     #https://stackoverflow.com/questions/12943819/how-to-prettyprint-a-json-object
-    return json.dumps(output_to_be_returned, indent=2)
+    return json.dumps(output_to_be_returned, indent=4)
 
 #Function to process WHATSAT output
 async def outputWHATSAT(tokens, recTime):
@@ -274,7 +274,7 @@ async def checkKeyword(text):
         return await handleECHO(text)
     #If neither, then it is an invalid starting command
     else:
-        return -1
+        return -1    
 
 #Callback function for start_server/create_server
 #Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
@@ -283,7 +283,7 @@ async def checkKeyword(text):
 async def server_callback(reader, writer):
     #read until EOF and return all read bytes -> (n=-1)
     #Read as utf-8 bytestream, so need to convert it
-    read_data = await reader.read(n=-1)
+    read_data = await reader.readline()
     #Record time the message was read at
     #https://avilpage.com/2014/11/python-unix-timestamp-utc-and-their.html
     receivedTime = time.time()
@@ -295,7 +295,7 @@ async def server_callback(reader, writer):
         #Will return ? + message
         output = await generate_output(message, receivedTime, detectedKeyword)
         logfile.write(output + "\n")
-        writer.write(output.encode())
+        writer.write(output.encode() + "\n".encode())
         await writer.drain()
         logfile.write("Closing connection with client...\n")
         writer.close()
@@ -306,29 +306,30 @@ async def server_callback(reader, writer):
         logfile.write("Received ECHO from {0}: {1}\n".format(tokenized_message[5], message))
         #Add it to the list of known clients
         if tokenized_message[1] not in currentClients:
-            currentClients[tokenized_message[1]] = tokenized_message[2:]
             logfile.write("Detected new client %s\n" % tokenized_message[1])
+            currentClients[tokenized_message[1]] = tokenized_message[2:]
             for i,v in enumerate(currentClients[tokenized_message[1]]):
                 currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
             floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
             await floodServers(floodMessage)
         #The client is one we already know
         elif tokenized_message[3] > currentClients[tokenized_message[1]][1]:
-                #Update the client's info
-                currentClients[tokenized_message[1]] = tokenized_message[2:]
-                logfile.write("Updated client %s\n" % tokenized_message[1])
-                for i,v in enumerate(currentClients[tokenized_message[1]]):
-                    currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
-                floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
-                await floodServers(floodMessage)
+            #Update the client's info
+            logfile.write("Updated client %s\n" % tokenized_message[1])
+            currentClients[tokenized_message[1]] = tokenized_message[2:]
+            for i,v in enumerate(currentClients[tokenized_message[1]]):
+                currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
+            floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
+            await floodServers(floodMessage)
     #Log all valid commands that are received
     else:
         logfile.write("Received {0} query from {1}: {2}\n".format(tokenized_message[0], tokenized_message[1], message))
         outputMessage = await generate_output(message, receivedTime, detectedKeyword)
         logfile.write("Replying with: %s\n" % outputMessage)
-        writer.write(outputMessage.encode())
+        writer.write(outputMessage.encode() + "\n".encode())
         await writer.drain()
-        logfile.write("Terminating connection with client...\n")
+        logfile.write("Terminating connection with client %s\n" % tokenized_message[1])
+        print("Closing connection with client %s" % tokenized_message[1])
         writer.close()
 
 #Main driver function
