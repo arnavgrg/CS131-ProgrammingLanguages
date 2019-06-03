@@ -7,6 +7,7 @@ import time
 
 #GCP apiKey for 
 apiKey = "AIzaSyC7mqFJt6wYkoL3KGzAoBNXFGbWqi6ptDw"
+apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key="
 
 #Global file_name which will be changed within functions as needed
 file_name = None
@@ -46,12 +47,6 @@ valid_commands = ['IAMAT', 'WHATSAT', 'ECHO']
 def error(message):
     print(message)
     sys.exit(1)
-
-#Function to write output to the outlog.log file
-def write_to_file(message):
-    f = open(file_name, 'a+')
-    f.write(message+"\n")
-    f.close()
 
 #Function to perform error checking
 def error_check(args):
@@ -186,9 +181,9 @@ async def outputWHATSAT(tokens, recTime):
         #Need to convert radius to meters
         radius = str(int(tokens[2]) * 1000)
         #Generate output string
-        outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + client + " " + clientProperties[0] + " " + clientProperties[1] + "\n"
+        outputMessage = "AT %s %s %s %s %s\n" % (sys.argv[1], diffTime, client, clientProperties[0], clientProperties[1])
         #Generate URL for querying
-        generatedUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + "key=" + apiKey + "&radius=" + radius + "&location=" + coords
+        generatedUrl = apiURL + apiKey + "&radius=" + radius + "&location=" + coords
         finalOutput = outputMessage + await get_info(generatedUrl, int(limit))
         return finalOutput
     else:
@@ -250,6 +245,8 @@ async def handleWHATSAT(text):
     #Information bound must be at most 20 items
     elif limit <= 0 or limit > 20:
         return -1
+    elif hostName not in currentClients:
+        return -1
     return 1
 
 #Helper function for checkKeyword that verifies messages with 'AT'
@@ -281,15 +278,15 @@ async def checkKeyword(text):
 #https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader
 #https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamWriter
 async def server_callback(reader, writer):
-    #read until EOF and return all read bytes -> (n=-1)
-    #Read as utf-8 bytestream, so need to convert it
     read_data = await reader.readline()
     #Record time the message was read at
     #https://avilpage.com/2014/11/python-unix-timestamp-utc-and-their.html
     receivedTime = time.time()
     #Tokenize the message so it can be processed
+    #Read as utf-8 bytestream, so need to convert it
     message = " ".join(read_data.decode().split())
-    detectedKeyword = await checkKeyword(message.split())
+    tokenized_message = message.split()
+    detectedKeyword = await checkKeyword(tokenized_message)
     #If invalid keyword is passed, write to logfile and output, and close connection with client
     if detectedKeyword == -1:
         #Will return ? + message
@@ -298,39 +295,40 @@ async def server_callback(reader, writer):
         writer.write(output.encode() + "\n".encode())
         await writer.drain()
         logfile.write("Closing connection with client...\n")
-        writer.close()
-        #await writer.wait_closed()
-    tokenized_message = message.split()
-    #ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559546768.399098 Wilkes
-    if tokenized_message[0] == 'ECHO':
-        logfile.write("Received ECHO from {0}: {1}\n".format(tokenized_message[5], message))
-        #Add it to the list of known clients
-        if tokenized_message[1] not in currentClients:
-            logfile.write("Detected new client %s\n" % tokenized_message[1])
-            currentClients[tokenized_message[1]] = tokenized_message[2:]
-            for i,v in enumerate(currentClients[tokenized_message[1]]):
-                currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
-            floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
-            await floodServers(floodMessage)
-        #The client is one we already know
-        elif tokenized_message[3] > currentClients[tokenized_message[1]][1]:
-            #Update the client's info
-            logfile.write("Updated client %s\n" % tokenized_message[1])
-            currentClients[tokenized_message[1]] = tokenized_message[2:]
-            for i,v in enumerate(currentClients[tokenized_message[1]]):
-                currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
-            floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
-            await floodServers(floodMessage)
-    #Log all valid commands that are received
-    else:
-        logfile.write("Received {0} query from {1}: {2}\n".format(tokenized_message[0], tokenized_message[1], message))
-        outputMessage = await generate_output(message, receivedTime, detectedKeyword)
-        logfile.write("Replying with: %s\n" % outputMessage)
-        writer.write(outputMessage.encode() + "\n".encode())
-        await writer.drain()
-        logfile.write("Terminating connection with client %s\n" % tokenized_message[1])
         print("Closing connection with client %s" % tokenized_message[1])
         writer.close()
+    #Had to add else otherwise it kept throwing errors when invalid commands were passed in
+    else:
+        #ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559546768.399098 Wilkes
+        if tokenized_message[0] == 'ECHO':
+            logfile.write("Received ECHO from {0}: {1}\n".format(tokenized_message[5], message))
+            #Add it to the list of known clients
+            if tokenized_message[1] not in currentClients:
+                logfile.write("Detected new client %s\n" % tokenized_message[1])
+                currentClients[tokenized_message[1]] = tokenized_message[2:]
+                for i,v in enumerate(currentClients[tokenized_message[1]]):
+                    currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
+                floodMessage = "ECHO %s %s" % (tokenized_message[1], " ".join(currentClients[tokenized_message[1]]))
+                await floodServers(floodMessage)
+            #The client is one we already know
+            elif tokenized_message[3] > currentClients[tokenized_message[1]][1]:
+                #Update the client's info
+                logfile.write("Updated client %s\n" % tokenized_message[1])
+                currentClients[tokenized_message[1]] = tokenized_message[2:]
+                for i,v in enumerate(currentClients[tokenized_message[1]]):
+                    currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
+                floodMessage = "ECHO %s %s" % (tokenized_message[1], " ".join(currentClients[tokenized_message[1]]))
+                await floodServers(floodMessage)
+        #Log all valid commands that are received
+        else:
+            logfile.write("Received {0} query from {1}: {2}\n".format(tokenized_message[0], tokenized_message[1], message))
+            outputMessage = await generate_output(message, receivedTime, detectedKeyword)
+            logfile.write("Replying with: %s\n" % outputMessage)
+            writer.write(outputMessage.encode() + "\n".encode())
+            await writer.drain()
+            logfile.write("Terminating connection with client %s\n" % tokenized_message[1])
+            print("Closing connection with client %s" % tokenized_message[1])
+            writer.close()
 
 #Main driver function
 def main():
