@@ -5,6 +5,9 @@ import aiohttp
 import json
 import time
 
+#https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/
+#This helped me understand how to use asyncio event loops
+
 #GCP apiKey for 
 apiKey = "AIzaSyC7mqFJt6wYkoL3KGzAoBNXFGbWqi6ptDw"
 apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key="
@@ -123,8 +126,6 @@ async def outputIAMAT(tokens, recTime):
     #Add +/- signs where needed
     if (diffTime > 0):
         diffTime = '+' + str(diffTime)
-    else:
-        diffTime = '-' + str(diffTime)
     #Build output message
     outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + tokens[1] + " " + tokens[2] + " " + tokens[3]
     for i,v in enumerate(currentClients[tokens[1]]):
@@ -170,8 +171,6 @@ async def outputWHATSAT(tokens, recTime):
         #Add +/- signs where needed
         if diffTime > 0:
             diffTime = "+" + str(diffTime)
-        else:
-            diffTime = "-" + str(diffTime)
         #Get details from tokens and parse coordinates
         limit = tokens[3]
         coords = parseCoords(clientProperties[0])
