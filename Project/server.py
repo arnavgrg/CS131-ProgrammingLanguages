@@ -72,7 +72,7 @@ async def floodServers(text):
         try:
             #Try to open a connection with the server. Only works if the server is already running
             reader, writer = await asyncio.open_connection('127.0.0.1', port_numbers[server], loop=loop)
-            logfile.write("Opened connection to %s!!\n" % currentServer)
+            logfile.write("Opened connection to %s!!\n" % server)
             #Write to the server 
             writer.write(text.encode())
             await writer.drain()
@@ -253,8 +253,8 @@ async def handleWHATSAT(text):
     return 1
 
 #Helper function for checkKeyword that verifies messages with 'AT'
-#FORMAT: AT Goloman +0.263873386 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
-async def handleAT(text):
+#ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559546768.399098 Wilkes
+async def handleECHO(text):
     if len(text) != 6:
         return -1
     return 1
@@ -270,8 +270,8 @@ async def checkKeyword(text):
     elif text[0] == "WHATSAT":
         return await handleWHATSAT(text)
     #Communication between servers itself
-    elif text[0] == "AT": 
-        return await(handleWHATSAT)
+    elif text[0] == "ECHO": 
+        return await handleECHO(text)
     #If neither, then it is an invalid starting command
     else:
         return -1
@@ -300,7 +300,36 @@ async def server_callback(reader, writer):
         logfile.write("Closing connection with client...\n")
         writer.close()
         #await writer.wait_closed()
-    return await generate_output(message, receivedTime, detectedKeyword)
+    tokenized_message = message.split()
+    #ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559546768.399098 Wilkes
+    if tokenized_message[0] == 'ECHO':
+        logfile.write("Received ECHO from {0}: {1}\n".format(tokenized_message[5], message))
+        #Add it to the list of known clients
+        if tokenized_message[1] not in currentClients:
+            currentClients[tokenized_message[1]] = tokenized_message[2:]
+            logfile.write("Detected new client %s\n" % tokenized_message[1])
+            for i,v in enumerate(currentClients[tokenized_message[1]]):
+                currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
+            floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
+            await floodServers(floodMessage)
+        #The client is one we already know
+        elif tokenized_message[3] > currentClients[tokenized_message[1]][1]:
+                #Update the client's info
+                currentClients[tokenized_message[1]] = tokenized_message[2:]
+                logfile.write("Updated client %s\n" % tokenized_message[1])
+                for i,v in enumerate(currentClients[tokenized_message[1]]):
+                    currentClients[tokenized_message[1]][i] = str(currentClients[tokenized_message[1]][i])
+                floodMessage = "ECHO " + tokenized_message[1] + " " + " ".join(currentClients[tokenized_message[1]])
+                await floodServers(floodMessage)
+    #Log all valid commands that are received
+    else:
+        logfile.write("Received {0} query from {1}: {2}\n".format(tokenized_message[0], tokenized_message[1], message))
+        outputMessage = await generate_output(message, receivedTime, detectedKeyword)
+        logfile.write("Replying with: %s\n" % outputMessage)
+        writer.write(outputMessage.encode())
+        await writer.drain()
+        logfile.write("Terminating connection with client...\n")
+        writer.close()
 
 #Main driver function
 def main():
