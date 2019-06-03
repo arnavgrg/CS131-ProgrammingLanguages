@@ -205,12 +205,27 @@ def outputIAMAT(tokens, recTime):
 def outputWHATSAT(tokens, recTime):
     outputMessage = ""
     if tokens[1] in currentClients:
+        #Get list of properties/info from the IAMAT call
         clientProperties = currentClients[tokens[1]]
         client = tokens[1]
+        diffTime = float(clientProperties[2]) - float(clientProperties[1])
+        #Add +/- signs where needed
+        if diffTime > 0:
+            diffTime = "+" + str(diffTime)
+        else:
+            diffTime = "-" + str(diffTime)
+        #Get details from tokens and parse coordinates
+        limit = tokens[3]
         coords = parseCoords(clientProperties[0])
         latitude = coords[0].replace("+","")
         longitude = coords[1].replace("+","")
         coords = latitude + "," + longitude
+        #Need to convert radius to meters
+        radius = str(int(tokens[2]) * 1000)
+        #Generate output string
+        outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + client + " " + clientProperties[0] + " " + clientProperties[1] + "\n"
+        #Generate URL for querying
+        generatedUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + "key=" + apiKey + "&radius=" + radius + "&location=" + coords
     else:
         return "? " + " ".join(tokens)
     return outputMessage
