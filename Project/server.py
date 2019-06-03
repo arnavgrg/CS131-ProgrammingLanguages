@@ -40,7 +40,7 @@ allowed_communications = {
 }
 
 #Valid commands that can be sent by a client/server
-valid_commands = ['IAMAT', 'WHATSAT', 'AT']
+valid_commands = ['IAMAT', 'WHATSAT', 'ECHO']
 
 #Function to write error messages to the file and exit with status 1
 def error(message):
@@ -63,6 +63,25 @@ def error_check(args):
     elif args[1] not in list(port_numbers.keys()):
         error("Invalid server name!! Accepted server names are 'Goloman', 'Hands', 'Holiday', 'Welsh', 'Wilkes'")
 
+#Function that simulates the flooding algorithm
+async def floodServers(text):
+    currentServer = sys.argv[1]
+    #Find the list of servers the current server can communicate with
+    for server in allowed_communications[currentServer]:
+        logfile.write("Trying to establish connection with server %s...\n" % server)
+        try:
+            #Try to open a connection with the server. Only works if the server is already running
+            reader, writer = await asyncio.open_connection('127.0.0.1', port_numbers[server], loop=loop)
+            logfile.write("Opened connection to %s!!\n" % currentServer)
+            #Write to the server 
+            writer.write(text.encode())
+            await writer.drain()
+            #Log that communication message has been transmitted
+            logfile.write("ECHOED message to %s!\n" % server)
+            writer.close()
+        except:
+            logfile.write("{0} failed to connect with {1}\n".format(currentServer, server))
+
 #Function to parse through the coordinates received by the client
 #Don't want to make this async because we want to wait till its completion (blocking)
 def parseCoords(coords):
@@ -72,11 +91,11 @@ def parseCoords(coords):
     dotIndexes = []
     #Traverse through all the characters in the location string
     for index,token in enumerate(coords, 1):
+        if token == '.':
+            dotIndexes.append(index)
         if token == '+' or token == '-':
             #Push the index at which the + and - were found
             signIndexes.append(index)
-        if token == '.':
-            dotIndexes.append(index)
     #Want to sure there are only 2 of either + or - 
     if len(signIndexes) != 2:
         return [None, None]
@@ -88,6 +107,108 @@ def parseCoords(coords):
         latitude = coords[signIndexes[0]-1:signIndexes[1]-1]
         longitude = coords[signIndexes[1]-1:]
     return [latitude, longitude]
+
+#Function to process IAMAT output
+#[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,1520023934.918963997]
+async def outputIAMAT(tokens, recTime):
+    outputMessage = ""
+    coords = parseCoords(tokens[2])
+    if coords[0] == None or coords[1] == None:
+        return -1
+    #Append Server Name
+    serverName = sys.argv[1]
+    tokens.append(recTime)
+    tokens.append(serverName)
+    #Add client name to list of known clients and save all info about it 
+    #[+34.068930-118.445127, 1520023934.918963997, ServerRecTime, servername]
+    currentClients[tokens[1]] = tokens[2:]
+    #Calculate difference between sent and received timings
+    currentTime = time.time()
+    diffTime = currentTime - recTime
+    #Add +/- signs where needed
+    if (diffTime > 0):
+        diffTime = '+' + str(diffTime)
+    else:
+        diffTime = '-' + str(diffTime)
+    #Build output message
+    outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + tokens[1] + " " + tokens[2] + " " + tokens[3]
+    for i,v in enumerate(currentClients[tokens[1]]):
+        currentClients[tokens[1]][i] = str(currentClients[tokens[1]][i])
+    #ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559546768.399098 Wilkes
+    floodMessage = "ECHO " + tokens[1] + " " + " ".join(currentClients[tokens[1]])
+    #Flood other servers with whom communication is allowed with the info about the client that 
+    #just connected to the current server
+    await floodServers(floodMessage)
+    return outputMessage
+
+#Asynchronour HTTP get request to get JSON object from the Google Places API
+async def get_info(generated_url, limit):
+    output_to_be_returned = dict()
+    #Asynchronous get request 
+    #Create client session
+    async with aiohttp.ClientSession() as session:
+        #Setup response object called url_response
+        #https://developers.google.com/places/web-service/search
+        async with session.get(generated_url,ssl=False) as url_response:
+            #Ensure request was successful
+            if url_response.status == 200:
+                #It is a common case to return JSON data in response, aiohttp.web provides a shortcut 
+                #for returning JSON – aiohttp.web.json_response()
+                raw = await url_response.json()
+                for key in list(raw.keys()):
+                    if key != 'results':
+                        output_to_be_returned[key] = raw[key]
+                output_to_be_returned['results'] = raw['results'][0:limit]
+            else:
+                write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
+    #https://stackoverflow.com/questions/12943819/how-to-prettyprint-a-json-object
+    return json.dumps(output_to_be_returned, indent=2)
+
+#Function to process WHATSAT output
+async def outputWHATSAT(tokens, recTime):
+    outputMessage = ""
+    if tokens[1] in currentClients:
+        #Get list of properties/info from the IAMAT call
+        clientProperties = currentClients[tokens[1]]
+        client = tokens[1]
+        diffTime = float(clientProperties[2]) - float(clientProperties[1])
+        #Add +/- signs where needed
+        if diffTime > 0:
+            diffTime = "+" + str(diffTime)
+        else:
+            diffTime = "-" + str(diffTime)
+        #Get details from tokens and parse coordinates
+        limit = tokens[3]
+        coords = parseCoords(clientProperties[0])
+        latitude = coords[0].replace("+","")
+        longitude = coords[1].replace("+","")
+        coords = latitude + "," + longitude
+        #Need to convert radius to meters
+        radius = str(int(tokens[2]) * 1000)
+        #Generate output string
+        outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + client + " " + clientProperties[0] + " " + clientProperties[1] + "\n"
+        #Generate URL for querying
+        generatedUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + "key=" + apiKey + "&radius=" + radius + "&location=" + coords
+        finalOutput = outputMessage + await get_info(generatedUrl, int(limit))
+        return finalOutput
+    else:
+        return "? " + " ".join(tokens)
+    return outputMessage
+
+#Helper method to generate all the messages for various commands
+async def generate_output(text, recTime, detectedKeyword):
+    #Using strip to remove beginning and trailing white spaces
+    tokenized = text.strip().split()
+    if detectedKeyword == -1:
+        #Servers should respond to invalid commands with a line that contains a question mark (?), 
+        #a space, and then a copy of the invalid command.
+        return "? " + text
+    elif tokenized[0] == 'IAMAT':
+        return await outputIAMAT(tokenized, recTime)
+    elif tokenized[0] == 'WHATSAT':
+        return await outputWHATSAT(tokenized, recTime)
+    else:
+        return "? " + text
 
 #Function to handle IAMAT messages
 #Format: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
@@ -155,104 +276,6 @@ async def checkKeyword(text):
     else:
         return -1
 
-#Function to process IAMAT output
-#[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,1520023934.918963997]
-async def outputIAMAT(tokens, recTime):
-    outputMessage = ""
-    coords = parseCoords(tokens[2])
-    if coords[0] == None or coords[1] == None:
-        return -1
-    #Append Server Name
-    serverName = sys.argv[1]
-    tokens.append(recTime)
-    tokens.append(serverName)
-    #Add client name to list of known clients and save all info about it 
-    #[+34.068930-118.445127, 1520023934.918963997, ServerRecTime, servername]
-    currentClients[tokens[1]] = tokens[2:]
-    #Calculate difference between sent and received timings
-    currentTime = time.time()
-    diffTime = currentTime - recTime
-    #Add +/- signs where needed
-    if (diffTime > 0):
-        diffTime = '+' + str(diffTime)
-    else:
-        diffTime = '-' + str(diffTime)
-    #Build output message
-    outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + tokens[1] + " " + tokens[2] + " " + tokens[3]
-    return outputMessage
-
-#Asynchronour HTTP get request to get JSON object from the Google Places API
-async def get_info(generated_url, limit):
-    output_to_be_returned = dict()
-    #Asynchronous get request 
-    #Create client session
-    async with aiohttp.ClientSession() as session:
-        #Setup response object called url_response
-        #https://developers.google.com/places/web-service/search
-        async with session.get(generated_url,ssl=False) as url_response:
-            #Ensure request was successful
-            if url_response.status == 200:
-                #It is a common case to return JSON data in response, aiohttp.web provides a shortcut 
-                #for returning JSON – aiohttp.web.json_response()
-                raw = await url_response.json()
-                for key in list(raw.keys()):
-                    if key != 'results':
-                        output_to_be_returned[key] = raw[key]
-                output_to_be_returned['results'] = raw['results'][0:limit]
-            else:
-                write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
-    #https://stackoverflow.com/questions/12943819/how-to-prettyprint-a-json-file
-    return json.dumps(output_to_be_returned, indent=2)
-
-#Function to process WHATSAT output
-async def outputWHATSAT(tokens, recTime):
-    outputMessage = ""
-    if tokens[1] in currentClients:
-        #Get list of properties/info from the IAMAT call
-        clientProperties = currentClients[tokens[1]]
-        client = tokens[1]
-        diffTime = float(clientProperties[2]) - float(clientProperties[1])
-        #Add +/- signs where needed
-        if diffTime > 0:
-            diffTime = "+" + str(diffTime)
-        else:
-            diffTime = "-" + str(diffTime)
-        #Get details from tokens and parse coordinates
-        limit = tokens[3]
-        coords = parseCoords(clientProperties[0])
-        latitude = coords[0].replace("+","")
-        longitude = coords[1].replace("+","")
-        coords = latitude + "," + longitude
-        #Need to convert radius to meters
-        radius = str(int(tokens[2]) * 1000)
-        #Generate output string
-        outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + client + " " + clientProperties[0] + " " + clientProperties[1] + "\n"
-        #Generate URL for querying
-        generatedUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + "key=" + apiKey + "&radius=" + radius + "&location=" + coords
-        finalOutput = outputMessage + await get_info(generatedUrl, int(limit))
-        print(finalOutput)
-        return finalOutput
-    else:
-        return "? " + " ".join(tokens)
-    return outputMessage
-
-#Helper method to generate all the messages for various commands
-async def generate_output(text, recTime, detectedKeyword):
-    #Using strip to remove beginning and trailing white spaces
-    tokenized = text.strip().split()
-    if detectedKeyword == -1:
-        #Servers should respond to invalid commands with a line that contains a question mark (?), 
-        #a space, and then a copy of the invalid command.
-        return "? " + text
-    elif tokenized[0] == 'IAMAT':
-        return await outputIAMAT(tokenized, recTime)
-    elif tokenized[0] == 'WHATSAT':
-        return await outputWHATSAT(tokenized, recTime)
-    elif tokenized[0] == 'AT':
-        pass
-    else:
-        pass
-
 #Callback function for start_server/create_server
 #Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
 #https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader
@@ -311,8 +334,7 @@ def main():
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        #If keyboard interrupt, do nothing
-        pass
+        pass #If keyboard interrupt, do nothing
     finally:
         #Close the server and wait until it is closed
         server.close()
