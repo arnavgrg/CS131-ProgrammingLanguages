@@ -63,25 +63,6 @@ def error_check(args):
     elif args[1] not in list(port_numbers.keys()):
         error("Invalid server name!! Accepted server names are 'Goloman', 'Hands', 'Holiday', 'Welsh', 'Wilkes'")
 
-#Asynchronour HTTP get request to get JSON object from the Google Places API
-async def get_info(generated_url, limit):
-    output_to_be_returned = ""
-    #Asynchronous get request 
-    #Create client session
-    async with aiohttp.ClientSession() as session:
-        #Setup response object called url_response
-        #https://developers.google.com/places/web-service/search
-        async with session.get(generated_url,ssl=False) as url_response:
-            #Ensure request was successful
-            if url_response.status == 200:
-                #It is a common case to return JSON data in response, aiohttp.web provides a shortcut 
-                #for returning JSON – aiohttp.web.json_response()
-                raw = await url_response.json()
-                output_to_be_returned = raw['result'][0:limit]
-            else:
-                write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
-    return output_to_be_returned
-
 #Function to parse through the coordinates received by the client
 #Don't want to make this async because we want to wait till its completion (blocking)
 def parseCoords(coords):
@@ -176,7 +157,7 @@ async def checkKeyword(text):
 
 #Function to process IAMAT output
 #[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,1520023934.918963997]
-def outputIAMAT(tokens, recTime):
+async def outputIAMAT(tokens, recTime):
     outputMessage = ""
     coords = parseCoords(tokens[2])
     if coords[0] == None or coords[1] == None:
@@ -188,7 +169,6 @@ def outputIAMAT(tokens, recTime):
     #Add client name to list of known clients and save all info about it 
     #[+34.068930-118.445127, 1520023934.918963997, ServerRecTime, servername]
     currentClients[tokens[1]] = tokens[2:]
-    print(currentClients)
     #Calculate difference between sent and received timings
     currentTime = time.time()
     diffTime = currentTime - recTime
@@ -201,8 +181,31 @@ def outputIAMAT(tokens, recTime):
     outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + tokens[1] + " " + tokens[2] + " " + tokens[3]
     return outputMessage
 
+#Asynchronour HTTP get request to get JSON object from the Google Places API
+async def get_info(generated_url, limit):
+    output_to_be_returned = dict()
+    #Asynchronous get request 
+    #Create client session
+    async with aiohttp.ClientSession() as session:
+        #Setup response object called url_response
+        #https://developers.google.com/places/web-service/search
+        async with session.get(generated_url,ssl=False) as url_response:
+            #Ensure request was successful
+            if url_response.status == 200:
+                #It is a common case to return JSON data in response, aiohttp.web provides a shortcut 
+                #for returning JSON – aiohttp.web.json_response()
+                raw = await url_response.json()
+                for key in list(raw.keys()):
+                    if key != 'results':
+                        output_to_be_returned[key] = raw[key]
+                output_to_be_returned['results'] = raw['results'][0:limit]
+            else:
+                write_to_file("ERROR: Async get request failed while trying WHATSAT!!!")
+    #https://stackoverflow.com/questions/12943819/how-to-prettyprint-a-json-file
+    return json.dumps(output_to_be_returned, indent=2)
+
 #Function to process WHATSAT output
-def outputWHATSAT(tokens, recTime):
+async def outputWHATSAT(tokens, recTime):
     outputMessage = ""
     if tokens[1] in currentClients:
         #Get list of properties/info from the IAMAT call
@@ -226,6 +229,9 @@ def outputWHATSAT(tokens, recTime):
         outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + client + " " + clientProperties[0] + " " + clientProperties[1] + "\n"
         #Generate URL for querying
         generatedUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + "key=" + apiKey + "&radius=" + radius + "&location=" + coords
+        finalOutput = outputMessage + await get_info(generatedUrl, int(limit))
+        print(finalOutput)
+        return finalOutput
     else:
         return "? " + " ".join(tokens)
     return outputMessage
@@ -239,9 +245,9 @@ async def generate_output(text, recTime, detectedKeyword):
         #a space, and then a copy of the invalid command.
         return "? " + text
     elif tokenized[0] == 'IAMAT':
-        return outputIAMAT(tokenized, recTime)
+        return await outputIAMAT(tokenized, recTime)
     elif tokenized[0] == 'WHATSAT':
-        return outputWHATSAT(tokenized, recTime)
+        return await outputWHATSAT(tokenized, recTime)
     elif tokenized[0] == 'AT':
         pass
     else:
