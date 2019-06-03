@@ -170,33 +170,63 @@ async def checkKeyword(text):
     #Communication between servers itself
     elif text[0] == "AT": 
         return await(handleWHATSAT)
-    #If neither, then it is an invalid command
+    #If neither, then it is an invalid starting command
     else:
         return -1
 
+#Function to process IAMAT output
+#[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,1520023934.918963997]
+def outputIAMAT(tokens, recTime):
+    outputMessage = ""
+    coords = parseCoords(tokens[2])
+    if coords[0] == None or coords[1] == None:
+        return -1
+    #Append Server Name
+    serverName = sys.argv[1]
+    tokens.append(recTime)
+    tokens.append(serverName)
+    #Add client name to list of known clients and save all info about it 
+    #[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,
+    #   1520023934.918963997, ServerRecTime, servername]
+    currentClients[tokens[1]] = tokens[1:]
+    #Calculate difference between sent and received timings
+    currentTime = time.time()
+    diffTime = currentTime - recTime
+    #Add +/- signs where needed
+    if (diffTime > 0):
+        diffTime = '+' + str(diffTime)
+    else:
+        diffTime = '-' + str(diffTime)
+    #Build output message
+    outputMessage = "AT " + sys.argv[1] + " " + diffTime + " " + tokens[1] + " " + tokens[2] + " " + tokens[3]
+    return outputMessage
+
+#Function to process WHATSAT output
+def outputWHATSAT(tokens, recTime):
+    pass
+
 #Helper method to generate all the messages for various commands
 async def generate_output(text, recTime, detectedKeyword):
-    outputMessage = ""
     #Using strip to remove beginning and trailing white spaces
     tokenized = text.strip().split()
     if detectedKeyword == -1:
-        #Servers should respond to invalid commands with a line that contains a question mark (?), a space, and then a copy of the invalid command.
+        #Servers should respond to invalid commands with a line that contains a question mark (?), 
+        #a space, and then a copy of the invalid command.
         return "? " + text
     elif tokenized[0] == 'IAMAT':
-        pass
+        return outputIAMAT(tokenized, recTime)
     elif tokenized[0] == 'WHATSAT':
         pass
     elif tokenized[0] == 'AT':
         pass
     else:
         pass
-    return outputMessage
 
 #Callback function for start_server/create_server
 #Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
 #https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader
 #https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamWriter
-async def server_callback(reader, write):
+async def server_callback(reader, writer):
     #read until EOF and return all read bytes -> (n=-1)
     #Read as utf-8 bytestream, so need to convert it
     read_data = await reader.read(n=-1)
@@ -206,9 +236,17 @@ async def server_callback(reader, write):
     #Tokenize the message so it can be processed
     message = " ".join(read_data.decode().split())
     detectedKeyword = await checkKeyword(message.split())
+    #If invalid keyword is passed, write to logfile and output, and close connection with client
     if detectedKeyword == -1:
-        print("Invalid input passed: ", message)
-        sys.exit(1)
+        #Will return ? + message
+        output = await generate_output(message, receivedTime, detectedKeyword)
+        logfile.write(output + "\n")
+        writer.write(output.encode())
+        await writer.drain()
+        logfile.write("Closing connection with client...\n")
+        writer.close()
+        #await writer.wait_closed()
+    return await generate_output(message, receivedTime, detectedKeyword)
 
 #Main driver function
 def main():
