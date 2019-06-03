@@ -186,9 +186,9 @@ def outputIAMAT(tokens, recTime):
     tokens.append(recTime)
     tokens.append(serverName)
     #Add client name to list of known clients and save all info about it 
-    #[IAMAT,kiwi.cs.ucla.edu,+34.068930-118.445127,
-    #   1520023934.918963997, ServerRecTime, servername]
-    currentClients[tokens[1]] = tokens[1:]
+    #[+34.068930-118.445127, 1520023934.918963997, ServerRecTime, servername]
+    currentClients[tokens[1]] = tokens[2:]
+    print(currentClients)
     #Calculate difference between sent and received timings
     currentTime = time.time()
     diffTime = currentTime - recTime
@@ -203,7 +203,17 @@ def outputIAMAT(tokens, recTime):
 
 #Function to process WHATSAT output
 def outputWHATSAT(tokens, recTime):
-    pass
+    outputMessage = ""
+    if tokens[1] in currentClients:
+        clientProperties = currentClients[tokens[1]]
+        client = tokens[1]
+        coords = parseCoords(clientProperties[0])
+        latitude = coords[0].replace("+","")
+        longitude = coords[1].replace("+","")
+        coords = latitude + "," + longitude
+    else:
+        return "? " + " ".join(tokens)
+    return outputMessage
 
 #Helper method to generate all the messages for various commands
 async def generate_output(text, recTime, detectedKeyword):
@@ -216,7 +226,7 @@ async def generate_output(text, recTime, detectedKeyword):
     elif tokenized[0] == 'IAMAT':
         return outputIAMAT(tokenized, recTime)
     elif tokenized[0] == 'WHATSAT':
-        pass
+        return outputWHATSAT(tokenized, recTime)
     elif tokenized[0] == 'AT':
         pass
     else:
