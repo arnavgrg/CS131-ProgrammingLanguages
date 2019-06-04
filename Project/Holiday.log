@@ -1,0 +1,125 @@
+Opened connection to server Holiday..
+Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Trying to establish connection with server Welsh...
+Holiday failed to connect with Welsh
+Trying to establish connection with server Wilkes...
+Holiday failed to connect with Wilkes
+Replying with: AT Holiday +8.392333984375e-05 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Terminating connection with client kiwi.cs.ucla.edu
+Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Trying to establish connection with server Welsh...
+Opened connection to Welsh!!
+ECHOED message to Welsh!
+Trying to establish connection with server Wilkes...
+Holiday failed to connect with Wilkes
+Replying with: AT Holiday +8.296966552734375e-05 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Terminating connection with client kiwi.cs.ucla.edu
+Received ECHO from Holiday: ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559630529.461694 Holiday
+Holiday is shutting down...
+Opened connection to server Holiday..
+Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Trying to establish connection with server Welsh...
+Holiday failed to connect with Welsh
+Trying to establish connection with server Wilkes...
+Holiday failed to connect with Wilkes
+Replying with: AT Holiday +8.678436279296875e-05 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Terminating connection with client kiwi.cs.ucla.edu
+Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 20 2
+Replying with: AT Holiday +39606753.254154205 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+{
+    "html_attributions": [],
+    "next_page_token": "CqQCFQEAAFc17yTip1pCVUFsx8z2XHZARh52VT7ydXJd4v0QoV-r12ONrInT832N3R36y6RO9kFiG0fECR0sPu3ES58F3paIrN5Sf8UKsjjgbNbui3iqjWfelRWqfSRhnJ6yj0G6z8TznxxSQ2JT0PS94stMzpIjhdVOXOUfn5an4Gp0_N14j-fkorFp-GzZUKLHbKE8m6BSV8V5hGHZWyEUZPn0ny4FvgqiJvrvPurXqVXlSIsEomAoVbIHY97EcBq2bpOq7SGVgmUE1cU8J3JsWl_jzn4RA9Qi27w6iLRMy-btOjaEogI2DzK45CGIVrIiWwkQn9f6hCmlBY8UuyxGjm-oikDa71RTw5eho8S8Xbpfj3CxXqPuMdUQ7Ha-VnhqTtrS0RIQ-ApoiQwqk_i8mZTZc2ypexoUJoCDWHBDVB-61sAcLIwC22KMDCQ",
+    "results": [
+        {
+            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
+            "scope": "GOOGLE",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            "types": [
+                "locality",
+                "political"
+            ],
+            "place_id": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "geometry": {
+                "location": {
+                    "lat": 34.0522342,
+                    "lng": -118.2436849
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 34.3373061,
+                        "lng": -118.1552891
+                    },
+                    "southwest": {
+                        "lat": 33.7036519,
+                        "lng": -118.6681759
+                    }
+                }
+            },
+            "vicinity": "Los Angeles",
+            "name": "Los Angeles",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
+                    ],
+                    "photo_reference": "CmRaAAAAVx_nC-sK708YhdDWbRNmG_NrWVXqK92uj7ILXeD3no2Vr0aBNWVuW7mxoqnPpc7K38WK-NJcVf40WYXRJtCgCPm8L5WTrPnOazcm5J6yoMBwBJDM5qfAzGIazxCueEKoEhBYXp8YRJ02IOYH6pwdHVvZGhRUhQtHSTrZ1eIGmwZELVdjATW_mw",
+                    "height": 1664,
+                    "width": 2496
+                }
+            ],
+            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I"
+        },
+        {
+            "id": "ddb6b9d2e25032f5541bfcf42b91f6c1161be1a2",
+            "place_id": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "scope": "GOOGLE",
+            "rating": 3.9,
+            "reference": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "opening_hours": {
+                "open_now": true
+            },
+            "user_ratings_total": 138,
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png",
+            "plus_code": {
+                "compound_code": "3H75+79 Los Angeles, California, United States",
+                "global_code": "85633H75+79"
+            },
+            "geometry": {
+                "location": {
+                    "lat": 34.06318630000001,
+                    "lng": -118.4415976
+                },
+                "viewport": {
+                    "northeast": {
+                        "lat": 34.0645212302915,
+                        "lng": -118.4401416197085
+                    },
+                    "southwest": {
+                        "lat": 34.0618232697085,
+                        "lng": -118.4428395802915
+                    }
+                }
+            },
+            "vicinity": "927 Hilgard Avenue, Los Angeles",
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "name": "Hilgard House Hotel & Suites",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/114543748345978093084/photos\">Hilgard House Hotel &amp; Suites</a>"
+                    ],
+                    "photo_reference": "CmRaAAAA2Ipxc9SHDk3UKgh4jxqpGcOX1bqpHUefmN_9_e8mQmbX-vEwakPxTJ18NkNcJsWLEXT9cdIbCxAprJEKgBuiEebE6g_yr7Nu3OEDu637eu-WaT1LieGybf__iCwvwz4HEhBrw9EWIR0pCusLvQMPgfBlGhQr4NAWW8LbDTvcyCcf3AUptXmBKA",
+                    "height": 260,
+                    "width": 300
+                }
+            ]
+        }
+    ],
+    "status": "OK"
+}
+Terminating connection with client kiwi.cs.ucla.edu
+Holiday is shutting down...

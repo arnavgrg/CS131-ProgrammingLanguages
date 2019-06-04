@@ -12,8 +12,7 @@ import time
 apiKey = "AIzaSyC7mqFJt6wYkoL3KGzAoBNXFGbWqi6ptDw"
 apiURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key="
 
-#Global file_name which will be changed within functions as needed
-file_name = None
+#Global logfile which will be changed within functions as needed
 logfile = None
 #Global loop variable for asyncio
 loop = None
@@ -79,6 +78,8 @@ async def floodServers(text):
             writer.close()
         except:
             logfile.write("{0} failed to connect with {1}\n".format(currentServer, server))
+        finally:
+            pass
 
 #Function to parse through the coordinates received by the client
 #Don't want to make this async because we want to wait till its completion (blocking)
@@ -294,7 +295,10 @@ async def server_callback(reader, writer):
         writer.write(output.encode() + "\n".encode())
         await writer.drain()
         logfile.write("Closing connection with client...\n")
-        print("Closing connection with client %s" % tokenized_message[1])
+        if len(tokenized_message) > 2:
+            print("Closing connection with client %s" % tokenized_message[1])
+        else:
+            print("Closing connection with client")
         writer.close()
     #Had to add else otherwise it kept throwing errors when invalid commands were passed in
     else:
@@ -329,15 +333,26 @@ async def server_callback(reader, writer):
             print("Closing connection with client %s" % tokenized_message[1])
             writer.close()
 
+#Def helper function to close server, write final message to output and end
+def closeServer(server, loop):
+    #Close the server and wait until it is closed
+    server.close()
+    loop.run_until_complete(server.wait_closed())
+    #Close the loop, write last line to logfile and exit with status 0
+    loop.close()
+    logfile.write("%s is shutting down...\n" % sys.argv[1])
+    logfile.close()
+    sys.exit(0)
+
 #Main driver function
 def main():
     #Check initial CLI input
     error_check(sys.argv)
     #Setup logfile
-    global file_name
     file_name = str(sys.argv[1]) + '.log'
     #For some reason, if I don't do this, the file is never created
-    open(file_name, 'a+').close()
+    f = open(file_name, 'a+')
+    f.close()
     global logfile
     logfile = open(file_name, 'a+')
     #https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop
@@ -363,14 +378,7 @@ def main():
     except KeyboardInterrupt:
         pass #If keyboard interrupt, do nothing
     finally:
-        #Close the server and wait until it is closed
-        server.close()
-        loop.run_until_complete(server.wait_closed())
-        #Close the loop, write last line to logfile and exit with status 0
-        loop.close()
-        logfile.write("%s is shutting down...\n" % sys.argv[1])
-        logfile.close()
-        sys.exit(0)
+        closeServer(server, loop)
 
 if __name__ == "__main__":
     main()

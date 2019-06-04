@@ -1,0 +1,117 @@
+Opened connection to server Hands..
+? ASDFGGSDF
+Closing connection with client...
+Hands is shutting down...
+Opened connection to server Hands..
+? ASDSDFSDFS SDF
+Closing connection with client...
+Hands is shutting down...
+Opened connection to server Hands..
+? ASDSDFSDFS SDF
+Closing connection with client...
+Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Trying to establish connection with server Wilkes...
+Hands failed to connect with Wilkes
+Replying with: AT Hands +8.916854858398438e-05 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Terminating connection with client kiwi.cs.ucla.edu
+? WHATSAT kiwi.cs.ucla.edu 67 2
+Closing connection with client...
+Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 20 2
+Replying with: AT Hands +39607046.89578104 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+{
+    "html_attributions": [],
+    "next_page_token": "CqQCFQEAAJ384-vSEbAp2vC4LTIcLusjhrihkxCFAuYeehJdL-yGuh6EVGRZkltboMAGauS3XkYfInKdc5Xc_v2096X-UOCbnK2ZkNHnaOqYVt96ujzOTh9I-IQp_F9WAcDaQ-dS8qy1qhmV-yHUGYd7teTvoWBJj0w04e-vqZbnaTkKZJUi9TwrqVOEduEcPCu1hW-uMpDxbLIrQdGWeNSkD9vTsvHCV6fQJ9mgZoRGY1oaZcnDKQqUJgpx1D1bL3CyC7Rsz2rif8bK3zBOHYO0YDJA5KEuCIqxZE4To47W6GUD1kI9VuSIKVYMle7mQfqorjvAjD8l5J8Gr-aqMTqTbXk5u75Sq1u5RE5irWC5g3dEkfsTPxfCerclcIE6WFFxdU4GehIQZkS4qNvlg2eUo7jZSKEcwRoUkVK_aVX9RFYH5T_MVN2HARpXdRg",
+    "results": [
+        {
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
+                    ],
+                    "photo_reference": "CmRaAAAAxnP8_SxdfeC42ZwKD0gKiuX45GcEATMupNptPOxbSentw7RxFTGofkpO2A-o7-Bd2g1umaE-bZUSfK9Z84vlL12W6Htj-7qZTHCfFSH7g3Tq5t_n06iYZwqwt3wfS6N8EhBYSHzDuCOxG39Smv8_SHPKGhRBiuL_3NdOz-JuwR1BYYal2dNtbg",
+                    "height": 1664,
+                    "width": 2496
+                }
+            ],
+            "scope": "GOOGLE",
+            "place_id": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "vicinity": "Los Angeles",
+            "name": "Los Angeles",
+            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
+            "geometry": {
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.1552891,
+                        "lat": 34.3373061
+                    },
+                    "southwest": {
+                        "lng": -118.6681759,
+                        "lat": 33.7036519
+                    }
+                },
+                "location": {
+                    "lng": -118.2436849,
+                    "lat": 34.0522342
+                }
+            },
+            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "types": [
+                "locality",
+                "political"
+            ],
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png"
+        },
+        {
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/114543748345978093084/photos\">Hilgard House Hotel &amp; Suites</a>"
+                    ],
+                    "photo_reference": "CmRaAAAA9MwFhPZbQgFle6tnZBVU2GTRic6evyUnsrf6bNnG3zIqgbsIQp1_gqDcHQbNEUozzfnj7uw1jaDqUUvtqFMAitjz0v6BGSzf09MvMdLczIlxvAGtSGxN3YZI7zdFMRczEhBbaxykf-en4gb1mH1qUs9nGhQEiKihSoFRoD9m4YQzk0tX456TcA",
+                    "height": 260,
+                    "width": 300
+                }
+            ],
+            "name": "Hilgard House Hotel & Suites",
+            "id": "ddb6b9d2e25032f5541bfcf42b91f6c1161be1a2",
+            "place_id": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "reference": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "plus_code": {
+                "compound_code": "3H75+79 Los Angeles, California, United States",
+                "global_code": "85633H75+79"
+            },
+            "rating": 3.9,
+            "vicinity": "927 Hilgard Avenue, Los Angeles",
+            "opening_hours": {
+                "open_now": true
+            },
+            "user_ratings_total": 138,
+            "scope": "GOOGLE",
+            "geometry": {
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.4401416197085,
+                        "lat": 34.0645212302915
+                    },
+                    "southwest": {
+                        "lng": -118.4428395802915,
+                        "lat": 34.0618232697085
+                    }
+                },
+                "location": {
+                    "lng": -118.4415976,
+                    "lat": 34.06318630000001
+                }
+            },
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png"
+        }
+    ],
+    "status": "OK"
+}
+Terminating connection with client kiwi.cs.ucla.edu
+Hands is shutting down...

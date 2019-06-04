@@ -20,7 +20,7 @@ Trying to establish connection with server Wilkes...
 Opened connection to Wilkes!!
 ECHOED message to Wilkes!
 Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 49 3
-Replying with: AT Goloman --140444293.20998454 kiwi.cs.ucla.edu +34.068930-118.445127 1700000000.23125156
+Replying with: AT Goloman -140444293.20998454 kiwi.cs.ucla.edu +34.068930-118.445127 1700000000.23125156
 {
     "results": [
         {
