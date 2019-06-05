@@ -1,38 +1,22 @@
 Opened connection to server Goloman..
 Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
 Trying to establish connection with server Hands...
-Goloman failed to connect with Hands
+Opened connection to Hands!!
+ECHOED message to Hands!
 Trying to establish connection with server Holiday...
 Goloman failed to connect with Holiday
 Trying to establish connection with server Wilkes...
-Opened connection to Wilkes!!
-ECHOED message to Wilkes!
-Replying with: AT Goloman +0.00011992454528808594 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Goloman failed to connect with Wilkes
+Replying with: AT Goloman +0.0001049041748046875 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
 Terminating connection with client kiwi.cs.ucla.edu
-Received ECHO from Goloman: ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997 1559555647.549631 Goloman
-Received ECHO from Wilkes: ECHO kiwi.cs.ucla.edu +34.068930-118.445127 1700000000.23125156 1559555707.021267 Wilkes
-Updated client kiwi.cs.ucla.edu
-Trying to establish connection with server Hands...
-Goloman failed to connect with Hands
-Trying to establish connection with server Holiday...
-Goloman failed to connect with Holiday
-Trying to establish connection with server Wilkes...
-Opened connection to Wilkes!!
-ECHOED message to Wilkes!
-Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 49 3
-Replying with: AT Goloman -140444293.20998454 kiwi.cs.ucla.edu +34.068930-118.445127 1700000000.23125156
+Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 49 5
+Replying with: AT Goloman +39669052.27140713 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
 {
     "results": [
         {
-            "scope": "GOOGLE",
-            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
             "place_id": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
-            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            "name": "Los Angeles",
             "geometry": {
-                "location": {
-                    "lng": -118.2436849,
-                    "lat": 34.0522342
-                },
                 "viewport": {
                     "southwest": {
                         "lng": -118.6681759,
@@ -42,36 +26,36 @@ Replying with: AT Goloman -140444293.20998454 kiwi.cs.ucla.edu +34.068930-118.44
                         "lng": -118.1552891,
                         "lat": 34.3373061
                     }
+                },
+                "location": {
+                    "lng": -118.2436849,
+                    "lat": 34.0522342
                 }
             },
+            "photos": [
+                {
+                    "height": 1664,
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
+                    ],
+                    "photo_reference": "CmRaAAAABVm1xyZDt198-eqBK0sYLkbXKb7bAhaQ3YV8axJrU0ROmx-8JUhHuxE7mos8sXMTCZx4BxbfpCRX8F1hOb6dRE7Y7UUGCD2Wc8g9X8KSlnUAGSHXs9jVJw5hERUzRPBlEhCLDVwPKpBV33UJDLx5NIVyGhRReH2Bkue8Z02QKEJ7qjoUEBzkEw",
+                    "width": 2496
+                }
+            ],
             "types": [
                 "locality",
                 "political"
             ],
+            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
+            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "scope": "GOOGLE",
             "vicinity": "Los Angeles",
-            "photos": [
-                {
-                    "height": 1664,
-                    "photo_reference": "CmRaAAAAxedCwVle3B-ByrKHEFkctrdrt5siNk7GFEqdMGlVSXnpeY4JeoZZxNZVU--FLlqFXpKYhb6_gSrfIe9tTia8exb9Qluvt3I9zoawZBJTNdDVPKjKBtSxpLwDtiZTLBmzEhDM9HoEbdc3RRmi5fX9PIUhGhQelzylmME453-k6GxMR0DQyHCJLg",
-                    "html_attributions": [
-                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
-                    ],
-                    "width": 2496
-                }
-            ],
-            "name": "Los Angeles",
-            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I"
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png"
         },
         {
-            "scope": "GOOGLE",
-            "id": "71b374acb987b8be875a091969db9d11158f8712",
             "place_id": "ChIJWdeZQOjKwoARqo8qxPo6AKE",
-            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            "name": "Long Beach",
             "geometry": {
-                "location": {
-                    "lng": -118.1937395,
-                    "lat": 33.7700504
-                },
                 "viewport": {
                     "southwest": {
                         "lng": -118.248966,
@@ -81,29 +65,377 @@ Replying with: AT Goloman -140444293.20998454 kiwi.cs.ucla.edu +34.068930-118.44
                         "lng": -118.063253,
                         "lat": 33.8854591
                     }
+                },
+                "location": {
+                    "lng": -118.1937395,
+                    "lat": 33.7700504
                 }
             },
+            "photos": [
+                {
+                    "height": 1536,
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107576136588973550621/photos\">Pankaj</a>"
+                    ],
+                    "photo_reference": "CmRaAAAASiCgmV19t3FIAq2H7MJW5gRfcABGAYZgVjXommjfdglA91cbDGpqPrHeQb4rEEZA749WBMD-3z48zN3-TgBX6U27By67hVhchtnLyxbAnbBkkUJ6lM1gU5iZtIAj-yFXEhC45aAiyrkWhBT2sSa-nNy4GhTUvvPNDf3palVuDNWf2CMu-JHoBQ",
+                    "width": 2048
+                }
+            ],
             "types": [
                 "locality",
                 "political"
             ],
+            "id": "71b374acb987b8be875a091969db9d11158f8712",
+            "reference": "ChIJWdeZQOjKwoARqo8qxPo6AKE",
+            "scope": "GOOGLE",
             "vicinity": "Long Beach",
-            "photos": [
-                {
-                    "height": 1536,
-                    "photo_reference": "CmRaAAAAQNrhJ5W0ogqGLbXJFl3UQ7ul4PSvbLZWzw6VmOAfThObYUnSQZn6qj1a8w6y632NntQQ2UklbHBWI-ekuT17G35c37Ep0RyemPUYmR6jA5I-QDzXNx8SBzlq4uAE4Eg2EhCTo9e_X65OebiAuSYRUeMvGhSfNekHfoyddFp7_HBjpaPVnZnEfw",
-                    "html_attributions": [
-                        "<a href=\"https://maps.google.com/maps/contrib/107576136588973550621/photos\">Pankaj</a>"
-                    ],
-                    "width": 2048
-                }
-            ],
-            "name": "Long Beach",
-            "reference": "ChIJWdeZQOjKwoARqo8qxPo6AKE"
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png"
         }
     ],
     "html_attributions": [],
     "status": "OK"
 }
+Terminating connection with client kiwi.cs.ucla.edu
+Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 49 5
+Replying with: AT Goloman +39669052.27140713 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+{
+    "results": [
+        {
+            "place_id": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "name": "Los Angeles",
+            "geometry": {
+                "viewport": {
+                    "southwest": {
+                        "lng": -118.6681759,
+                        "lat": 33.7036519
+                    },
+                    "northeast": {
+                        "lng": -118.1552891,
+                        "lat": 34.3373061
+                    }
+                },
+                "location": {
+                    "lng": -118.2436849,
+                    "lat": 34.0522342
+                }
+            },
+            "photos": [
+                {
+                    "height": 1664,
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
+                    ],
+                    "photo_reference": "CmRaAAAAel3n4ASg-kSo0FQKTOA56EyMDxffCtKCZudHCWhvXWPL4jy3-cR5USQe6zij8_Y1obK6NfHKzhRX6bQxGjUfnEzk1m8AYnuprGH8mvaLnkImDfq3-ASnN-A-xMu51KL6EhDb-pIOJ4uX0H4pQgpy01Z3GhTNGHFpM7XXoZeEQaZDoCdNSq-22w",
+                    "width": 2496
+                }
+            ],
+            "types": [
+                "locality",
+                "political"
+            ],
+            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
+            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "scope": "GOOGLE",
+            "vicinity": "Los Angeles",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png"
+        },
+        {
+            "place_id": "ChIJWdeZQOjKwoARqo8qxPo6AKE",
+            "name": "Long Beach",
+            "geometry": {
+                "viewport": {
+                    "southwest": {
+                        "lng": -118.248966,
+                        "lat": 33.714957
+                    },
+                    "northeast": {
+                        "lng": -118.063253,
+                        "lat": 33.8854591
+                    }
+                },
+                "location": {
+                    "lng": -118.1937395,
+                    "lat": 33.7700504
+                }
+            },
+            "photos": [
+                {
+                    "height": 1536,
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107576136588973550621/photos\">Pankaj</a>"
+                    ],
+                    "photo_reference": "CmRaAAAAP22fzP-BXH7nV5njp8L6qFa0xeV5anuiWQjq1H7r8-fHeiL_WAPGVmlHJo6KzyoK-VhuoT7xdduEmU1rEVCVUwHNP12w6nIY7uH40EjdtJgWiebp4qTGNwfExPTsMsxfEhAwEnweVqdt09EbuSaMMtlfGhSTXJcV6Tpt10ZbfW2xxFJ5cLzmSw",
+                    "width": 2048
+                }
+            ],
+            "types": [
+                "locality",
+                "political"
+            ],
+            "id": "71b374acb987b8be875a091969db9d11158f8712",
+            "reference": "ChIJWdeZQOjKwoARqo8qxPo6AKE",
+            "scope": "GOOGLE",
+            "vicinity": "Long Beach",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png"
+        }
+    ],
+    "html_attributions": [],
+    "status": "OK"
+}
+Terminating connection with client kiwi.cs.ucla.edu
+Goloman is shutting down...
+Opened connection to server Goloman..
+Received IAMAT query from kiwi.cs.ucla.edu: IAMAT kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Trying to establish connection with server Hands...
+Goloman failed to connect with Hands
+Trying to establish connection with server Holiday...
+Goloman failed to connect with Holiday
+Trying to establish connection with server Wilkes...
+Goloman failed to connect with Wilkes
+Replying with: AT Goloman +0.00011610984802246094 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+Terminating connection with client kiwi.cs.ucla.edu
+Received WHATSAT query from kiwi.cs.ucla.edu: WHATSAT kiwi.cs.ucla.edu 10 5
+Replying with: AT Goloman +39670112.70018101 kiwi.cs.ucla.edu +34.068930-118.445127 1520023934.918963997
+{
+    "next_page_token": "CqQCFQEAALAjFzgJu0xRKYlrirMFoeUWDJh4qzLukAPlwlLW_vpl6hyR7vBHo42BWbHpcGYKSC-dz4bjVcVQreiRc_caM608qVwQ2x_807vbiO-LkFnoyaup0dCP_JJa-X7hDZOJ2rJL_o-iWhByUEVtjZnpA2e3wDVioS2WcFnR4_fvvtcVC-kWhlhu3JcKFs5g_45UGQPnpXw1qSS5xuDbRpJsTDdjtYwXEGyPPqm8ES5Vner0z7D0vNSRGk3JmfiY33ZgUMyJgIz62GDJWb9pW1f4kPlz2aWvsirrwcNh8aJIFvHXom-oYE3_ylO8bPl1DeZKY2qGaGMj7eHFbaq3us_q9DPv5VSRwUMd6s5gvwto_53AKlCscE5ob4oA9aUbG5jxLxIQtfD1H_AcJ9j7pEPAIQQgeRoUVANbY7_WOVXXsC2ikMFCq6hzF5Q",
+    "html_attributions": [],
+    "results": [
+        {
+            "scope": "GOOGLE",
+            "types": [
+                "locality",
+                "political"
+            ],
+            "place_id": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "vicinity": "Los Angeles",
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/geocode-71.png",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/107608360183271036803/photos\">aditya mani vatsa</a>"
+                    ],
+                    "width": 2496,
+                    "height": 1664,
+                    "photo_reference": "CmRaAAAAlP9MS0qAmplWop4tK_gBNUR9NdiH6BgVD1_fhuGbOvdy-2FqeoN2xXi512C5qQ8fKiSHLO-G-Ord_fCipvC5zO5eCHYsNEg8kaYBnn0PcrDCheMVIDKL_uSbp_lKI8pMEhBlZYNi-_6GmYAhcvBesNV8GhS8onMSfP_uUiZDCKZBWgbMaxhA-g"
+                }
+            ],
+            "geometry": {
+                "location": {
+                    "lng": -118.2436849,
+                    "lat": 34.0522342
+                },
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.1552891,
+                        "lat": 34.3373061
+                    },
+                    "southwest": {
+                        "lng": -118.6681759,
+                        "lat": 33.7036519
+                    }
+                }
+            },
+            "id": "7f7b7d8118ae8db8ed3f541159ac928c484d12ad",
+            "reference": "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+            "name": "Los Angeles"
+        },
+        {
+            "opening_hours": {
+                "open_now": true
+            },
+            "vicinity": "927 Hilgard Avenue, Los Angeles",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/114543748345978093084/photos\">Hilgard House Hotel &amp; Suites</a>"
+                    ],
+                    "width": 300,
+                    "height": 260,
+                    "photo_reference": "CmRaAAAAQOVD6hsjJuqNSzJnJ6ssjEDMyzzL-zeH4wMmaJeMifBfk_UiLtggJSjVopQCfOly5RUrEu-Yk0V2t7U20FvoSQ4h8IxVVwuDeTHiqRdmxogqTfjLMgW5yGE2RJotW_9DEhDn7rpXBgZ129PPo9rCmXuNGhRjMk63rNy_LLYv62GVH8deQdRmBQ"
+                }
+            ],
+            "reference": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "id": "ddb6b9d2e25032f5541bfcf42b91f6c1161be1a2",
+            "name": "Hilgard House Hotel & Suites",
+            "user_ratings_total": 138,
+            "scope": "GOOGLE",
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "place_id": "ChIJ06ecwoC8woARVyPlQNVzetI",
+            "plus_code": {
+                "global_code": "85633H75+79",
+                "compound_code": "3H75+79 Los Angeles, California, United States"
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png",
+            "geometry": {
+                "location": {
+                    "lng": -118.4415976,
+                    "lat": 34.06318630000001
+                },
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.4401416197085,
+                        "lat": 34.0645212302915
+                    },
+                    "southwest": {
+                        "lng": -118.4428395802915,
+                        "lat": 34.0618232697085
+                    }
+                }
+            },
+            "rating": 3.9
+        },
+        {
+            "opening_hours": {
+                "open_now": true
+            },
+            "vicinity": "930 Hilgard Avenue, Los Angeles",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/106717016222686749028/photos\">W Los Angeles - West Beverly Hills</a>"
+                    ],
+                    "width": 1500,
+                    "height": 1000,
+                    "photo_reference": "CmRaAAAAmhU6IdCJ0ngzHos1UfY3p0rqGZIdzpXDYiA6OpWdlyY9vkiytP_5g-WnadF_vRNX6W0WgIPJUdOkbUO3bH6V9QO0TsW_w5Lq8Ba9hB9yEyW-zzKQ7Mv13v_YqfmUoSJZEhBSg6baTtC8aZw94YB4Lu0fGhT5A91s4qeM73wpDkzZg7jwblfYgA"
+                }
+            ],
+            "reference": "ChIJffYelYC8woARkChY4cQOzUM",
+            "id": "123c3294a684a0fb173c40813459506d1420c75b",
+            "name": "W Los Angeles - West Beverly Hills",
+            "user_ratings_total": 829,
+            "scope": "GOOGLE",
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "place_id": "ChIJffYelYC8woARkChY4cQOzUM",
+            "plus_code": {
+                "global_code": "85633H75+8H",
+                "compound_code": "3H75+8H Los Angeles, California, United States"
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png",
+            "geometry": {
+                "location": {
+                    "lng": -118.441103,
+                    "lat": 34.063259
+                },
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.4398850197085,
+                        "lat": 34.06460403029149
+                    },
+                    "southwest": {
+                        "lng": -118.4425829802915,
+                        "lat": 34.06190606970849
+                    }
+                }
+            },
+            "rating": 4.2
+        },
+        {
+            "vicinity": "1052 Tiverton Avenue, Los Angeles",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/113208686299204696401/photos\">Javier de la Rosa</a>"
+                    ],
+                    "width": 5312,
+                    "height": 2988,
+                    "photo_reference": "CmRaAAAArApCbgDs_jo30adj2K_4lvSyHPtjOVPYNIYl4PfBkKivYhDA1do8PUyD9eP-LpKiIcS7yQ3EJwXByyWv-yuwJ614xS87Z-GB7YvMSLfxEhGnxZrgJcMDvRNWpMdD70RgEhApWE5mKS4Dico4zTf863-2GhTbi41Kn3SC7hcG7QOgT_S_pUHiqQ"
+                }
+            ],
+            "reference": "ChIJ36i1toG8woARHcjs6P2eCkU",
+            "id": "d9aae9960743eec4c49c99ac8a437b7ddbef7c63",
+            "name": "Royal Palace Westwood Hotel",
+            "user_ratings_total": 153,
+            "scope": "GOOGLE",
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "place_id": "ChIJ36i1toG8woARHcjs6P2eCkU",
+            "plus_code": {
+                "global_code": "85633H64+7R",
+                "compound_code": "3H64+7R Los Angeles, California, United States"
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png",
+            "geometry": {
+                "location": {
+                    "lng": -118.4429579,
+                    "lat": 34.0606338
+                },
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.4417212697085,
+                        "lat": 34.06200043029149
+                    },
+                    "southwest": {
+                        "lng": -118.4444192302915,
+                        "lat": 34.0593024697085
+                    }
+                }
+            },
+            "rating": 4.2
+        },
+        {
+            "opening_hours": {
+                "open_now": true
+            },
+            "vicinity": "10300 Wilshire Boulevard, Los Angeles",
+            "photos": [
+                {
+                    "html_attributions": [
+                        "<a href=\"https://maps.google.com/maps/contrib/116019741408911300544/photos\">The Wanderer</a>"
+                    ],
+                    "width": 3648,
+                    "height": 2736,
+                    "photo_reference": "CmRaAAAAF50lXblnV6bPMNP_67ICnODxokLgsdWA8ATpNZYYS2H95L6k5ULqxSjq2h7qY_n5jG-USgNIM_LELQNpkUjHoY1hAygLjyUTGIsFq26YrKxEqhDUGyIRZWlSaoLjKO5_EhBF56_p8eN2BcHcAw_YG0qOGhTYcqWBuDDbohDOvjAoKtUFMktFZA"
+                }
+            ],
+            "reference": "ChIJ5ZA1I3e8woARBzIurF6K3vU",
+            "id": "a5699f3a10cfd58c6aab513ae29e157fcfda7ce2",
+            "name": "Beverly Hills Plaza Hotel & Spa",
+            "user_ratings_total": 268,
+            "scope": "GOOGLE",
+            "types": [
+                "lodging",
+                "point_of_interest",
+                "establishment"
+            ],
+            "place_id": "ChIJ5ZA1I3e8woARBzIurF6K3vU",
+            "plus_code": {
+                "global_code": "85633H9F+3H",
+                "compound_code": "3H9F+3H Los Angeles, California, United States"
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png",
+            "geometry": {
+                "location": {
+                    "lng": -118.4260653,
+                    "lat": 34.0676867
+                },
+                "viewport": {
+                    "northeast": {
+                        "lng": -118.4244558197085,
+                        "lat": 34.0689543802915
+                    },
+                    "southwest": {
+                        "lng": -118.4271537802915,
+                        "lat": 34.0662564197085
+                    }
+                }
+            },
+            "rating": 4.4
+        }
+    ],
+    "status": "OK"
+}
+
+
 Terminating connection with client kiwi.cs.ucla.edu
 Goloman is shutting down...

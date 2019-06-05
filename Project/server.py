@@ -34,8 +34,8 @@ port_numbers = {
 #Allowed communications between servers
 allowed_communications = {
     'Goloman': ['Hands', 'Holiday', 'Wilkes'],
-    'Hands': ['Wilkes'],
-    'Holiday': ['Welsh','Wilkes'],
+    'Hands': ['Wilkes', 'Goloman'],
+    'Holiday': ['Welsh','Wilkes', 'Goloman'],
     #Based on the first 3 allowed communications, we can infer the allowed 
     #communications for Welsh and Wilkes
     'Welsh': ['Holiday'],
@@ -184,7 +184,7 @@ async def outputWHATSAT(tokens, recTime):
         outputMessage = "AT %s %s %s %s %s\n" % (sys.argv[1], diffTime, client, clientProperties[0], clientProperties[1])
         #Generate URL for querying
         generatedUrl = apiURL + apiKey + "&radius=" + radius + "&location=" + coords
-        finalOutput = outputMessage + await get_info(generatedUrl, int(limit))
+        finalOutput = outputMessage + await get_info(generatedUrl, int(limit)) + "\n\n"
         return finalOutput
     else:
         return "? " + " ".join(tokens)
