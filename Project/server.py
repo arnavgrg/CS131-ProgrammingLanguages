@@ -47,7 +47,7 @@ valid_commands = ['IAMAT', 'WHATSAT', 'ECHO']
 
 #Function to write error messages to the file and exit with status 1
 def error(message):
-    print(message)
+    #logfile.write(message)
     sys.exit(1)
 
 #Function to perform error checking
@@ -73,6 +73,7 @@ async def floodServers(text):
             #Write to the server 
             writer.write(text.encode() + "\n".encode())
             await writer.drain()
+            writer.write_eof()
             #Log that communication message has been transmitted
             logfile.write("ECHOED message to %s!\n" % server)
             writer.close()
@@ -271,7 +272,7 @@ async def checkKeyword(text):
         return await handleECHO(text)
     #If neither, then it is an invalid starting command
     else:
-        return -1    
+        return -1
 
 #Callback function for start_server/create_server
 #Receives a (reader, writer) pair as two arguments, instances of the StreamReader and StreamWriter classes.
@@ -294,11 +295,14 @@ async def server_callback(reader, writer):
         logfile.write(output + "\n")
         writer.write(output.encode() + "\n".encode())
         await writer.drain()
+        writer.write_eof()
         logfile.write("Closing connection with client...\n")
         if len(tokenized_message) > 2:
-            print("Closing connection with client %s" % tokenized_message[1])
+            pass
+            #print("Closing connection with client %s" % tokenized_message[1])
         else:
-            print("Closing connection with client")
+            pass
+            #print("Closing connection with client")
         writer.close()
     #Had to add else otherwise it kept throwing errors when invalid commands were passed in
     else:
@@ -329,8 +333,9 @@ async def server_callback(reader, writer):
             logfile.write("Replying with: %s\n" % outputMessage)
             writer.write(outputMessage.encode() + "\n".encode())
             await writer.drain()
+            writer.write_eof()
             logfile.write("Terminating connection with client %s\n" % tokenized_message[1])
-            print("Closing connection with client %s" % tokenized_message[1])
+            #print("Closing connection with client %s" % tokenized_message[1])
             writer.close()
 
 #Def helper function to close server, write final message to output and end
@@ -370,7 +375,7 @@ def main():
     #A function that can be entered and exited multiple times, suspended and resumed each time, is called 
     #a coroutine.
     server = loop.run_until_complete(coro)
-    print("Connecting to server {}...".format(sys.argv[1]))
+    #print("Connecting to server {}...".format(sys.argv[1]))
     logfile.write("Opened connection to server %s..\n" % sys.argv[1])
     #Run infinitely until keyboard interrupt
     try:
